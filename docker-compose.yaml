@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres.${APP_NAME}
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mirus
+    networks:
+      - bubble
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase.${APP_NAME}
+    profiles: ["metabase"]
+    restart: on-failure
+    networks:
+      - bubble
+    ports:
+      - "3000:3000"
+
+  redis:
+    container_name: ${APP_NAME}-redis
+    image: "redis:6.2.6"
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    networks:
+      - bubble
+
+  redis-insight:
+    container_name: ${APP_NAME}-redis-insight
+    image: redislabs/redisinsight:latest
+    ports:
+      - 5540:5540
+    volumes:
+      - ./.docker/redis-insight/databases.json:/data/databases.json
+    environment:
+      - RIPORT=5540
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - bubble
+
+volumes:
+  postgres_data:
+
+networks:
+  bubble:
+    driver: bridge
