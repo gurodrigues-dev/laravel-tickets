@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Events extends Model
+class Event extends Model
 {
     use HasFactory;
 
@@ -24,6 +24,6 @@ class Events extends Model
 
     public function reservations()
     {
-        return $this->hasMany(Reservations::class);
+        return $this->hasMany(Reservation::class);
     }
 }

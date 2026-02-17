@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,5 +35,31 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('users', UserController::class);
+});
+
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\ReservationController;
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/events', [EventController::class, 'index'])
+        ->name('events.index');
+
+    Route::post('/reservations', [ReservationController::class, 'store'])
+        ->name('reservations.store');
+
+    Route::get('/my-reservations', [ReservationController::class, 'myReservations'])
+        ->name('reservations.my');
+
+    Route::put('/reservations/{id}', [ReservationController::class, 'update'])
+        ->name('reservations.update');
+
+    Route::delete('/reservations/{id}', [ReservationController::class, 'destroy'])
+        ->name('reservations.destroy');
+});
+
 
 require __DIR__.'/auth.php';
