@@ -3,10 +3,31 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
+import { logout } from '@/utils/auth';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async (e) => {
+        e.preventDefault();
+        setIsLoggingOut(true);
+
+        const result = await logout();
+
+        if (result.success) {
+            // Redirect to login page after successful logout
+            router.visit(route('login'), {
+                method: 'get',
+            });
+        } else {
+            setIsLoggingOut(false);
+            // Show error message (could use a toast notification here)
+            console.error('Logout failed:', result.error);
+            alert('Failed to logout. Please try again.');
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -23,6 +44,12 @@ export default function Authenticated({ user, header, children }) {
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
+                                </NavLink>
+                                <NavLink href={route('events.index')} active={route().current('events.index')}>
+                                    Events
+                                </NavLink>
+                                <NavLink href={route('reservations.my')} active={route().current('reservations.my')}>
+                                    My Reservations
                                 </NavLink>
                             </div>
                         </div>
@@ -56,8 +83,8 @@ export default function Authenticated({ user, header, children }) {
 
                                     <Dropdown.Content>
                                         <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
+                                        <Dropdown.Link as="button" onClick={handleLogout} disabled={isLoggingOut}>
+                                            {isLoggingOut ? 'Logging out...' : 'Log Out'}
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -95,6 +122,12 @@ export default function Authenticated({ user, header, children }) {
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('events.index')} active={route().current('events.index')}>
+                            Events
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('reservations.my')} active={route().current('reservations.my')}>
+                            My Reservations
+                        </ResponsiveNavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
@@ -105,8 +138,8 @@ export default function Authenticated({ user, header, children }) {
 
                         <div className="mt-3 space-y-1">
                             <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
+                            <ResponsiveNavLink as="button" onClick={handleLogout} disabled={isLoggingOut}>
+                                {isLoggingOut ? 'Logging out...' : 'Log Out'}
                             </ResponsiveNavLink>
                         </div>
                     </div>

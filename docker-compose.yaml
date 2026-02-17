@@ -23,7 +23,6 @@ services:
   metabase:
     image: metabase/metabase:latest
     container_name: metabase.${APP_NAME}
-    profiles: ["metabase"]
     restart: on-failure
     networks:
       - bubble

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Events;
 use Illuminate\Database\Seeder;
 use App\Models\Event;
 
@@ -54,7 +53,7 @@ class EventSeeder extends Seeder
         ];
 
         foreach ($events as $event) {
-            Events::create($event);
+            Event::create($event);
         }
     }
 }
