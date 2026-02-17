@@ -8,4 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Events extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'event_date',
+        'total_tickets',
+        'available_tickets',
+        'version',
+    ];
+
+    protected $casts = [
+        'event_date' => 'datetime',
+    ];
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservations::class);
+    }
 }
