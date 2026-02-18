@@ -25,6 +25,7 @@ class EventPaginationTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
+        Event::query()->delete();
         Event::factory()->count(25)->create();
 
         $response = $this->getJson('/api/v1/events?per_page=10&page=1');
@@ -71,6 +72,7 @@ class EventPaginationTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
+        Event::query()->delete();
         Event::factory()->count(5)->create();
 
         $response = $this->getJson('/api/v1/events');
@@ -111,6 +113,7 @@ class EventPaginationTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
+        Event::query()->delete();
         Event::factory()->count(5)->create();
 
         $response = $this->getJson('/api/v1/events?per_page=10&page=999');

@@ -7,37 +7,26 @@ use App\Services\Contracts\UserServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
 Route::prefix('v1')->group(function () {
-    /*
-    |--------------------------------------------------------------------------
-    | Public Routes (No authentication required)
-    |--------------------------------------------------------------------------
-    */
 
     Route::post('/register', function (Request $request, UserServiceInterface $userService) {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8'],
         ]);
 
         $user = $userService->create($request->all());
 
         return response()->json([
-            'message' => 'Successfully registered',
-            'user' => $user,
-        ], 201);
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'email_verified_at' => $user->email_verified_at?->format('Y-m-d H:i:s'),
+            'created_at' => $user->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $user->updated_at?->format('Y-m-d H:i:s'),
+        ], 200);
     })->name('api.register');
 
     Route::get('/verify-email/{id}/{hash}', \App\Http\Controllers\Api\VerifyEmailController::class)
@@ -53,35 +42,13 @@ Route::prefix('v1')->group(function () {
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
         ->name('api.password.reset');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Protected Routes (Authentication required)
-    |--------------------------------------------------------------------------
-    */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Protected Routes - Session/Token Authentication (Hybrid)
-    |--------------------------------------------------------------------------
-    | These routes work with both session cookies (web) and Sanctum tokens (API).
-    | The 'api' middleware group (from RouteServiceProvider) already includes
-    | EnsureFrontendRequestsAreStateful middleware which allows session auth.
-    | The 'auth:sanctum' allows both session and token authentication.
-    */
     Route::middleware(['auth:sanctum'])->group(function () {
-        // Authentication logout
         Route::post('/auth/logout', [AuthController::class, 'logout'])
             ->name('api.auth.logout');
 
-        // Get authenticated user information
         Route::get('/auth/user', [AuthController::class, 'me'])
             ->name('api.auth.user');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Event Routes
-        |--------------------------------------------------------------------------
-        */
         Route::prefix('events')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\EventController::class, 'index'])
                 ->name('api.events.index');
@@ -89,11 +56,6 @@ Route::prefix('v1')->group(function () {
                 ->name('api.events.store');
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Reservation Routes
-        |--------------------------------------------------------------------------
-        */
         Route::prefix('reservations')->group(function () {
             Route::get('/my-reservations', [\App\Http\Controllers\Api\ReservationController::class, 'myReservations'])
                 ->name('api.reservations.my');
