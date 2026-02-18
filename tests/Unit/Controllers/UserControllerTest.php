@@ -3,7 +3,6 @@
 use App\Models\User;
 use App\Services\Contracts\UserServiceInterface;
 use Illuminate\Http\Request;
-use Mockery;
 use Tests\TestCase;
 
 uses(TestCase::class);

@@ -4,7 +4,6 @@ use App\Models\Event;
 use App\Repositories\Contracts\EventRepositoryInterface;
 use App\Services\EventService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Mockery;
 use Tests\TestCase;
 
 uses(TestCase::class);

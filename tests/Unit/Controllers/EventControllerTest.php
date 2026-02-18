@@ -3,7 +3,6 @@
 use App\Models\Event;
 use App\Services\Contracts\EventServiceInterface;
 use Illuminate\Http\Request;
-use Mockery;
 use Tests\TestCase;
 
 uses(TestCase::class);
