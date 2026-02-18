@@ -17,22 +17,34 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('events.index');
+    }
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'auth' => [
+            'user' => null,
+        ],
     ]);
 });
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Inertia page routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/events', function () {
+        return Inertia::render('Events/Index');
+    })->name('events.index');
+
+    Route::get('/my-reservations', function () {
+        return Inertia::render('Reservations/Index');
+    })->name('reservations.my');
 });
 
 require __DIR__.'/auth.php';

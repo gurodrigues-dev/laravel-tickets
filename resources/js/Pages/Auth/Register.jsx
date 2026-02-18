@@ -1,29 +1,58 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
 export default function Register() {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const [data, setData] = useState({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
+    const [processing, setProcessing] = useState(false);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         return () => {
-            reset('password', 'password_confirmation');
+            setData(prev => ({
+                ...prev,
+                password: '',
+                password_confirmation: ''
+            }));
         };
     }, []);
 
     const submit = (e) => {
         e.preventDefault();
+        setProcessing(true);
 
-        post(route('register'));
+        router.post('/register', data, {
+            onFinish: () => setProcessing(false),
+            onError: (errors) => {
+                setErrors(errors);
+            },
+            onSuccess: () => {
+            }
+        });
+    };
+
+    const onHandleChange = (event) => {
+        setData(prev => ({
+            ...prev,
+            [event.target.name]: event.target.value
+        }));
+        // Clear field error when user types
+        if (errors[event.target.name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[event.target.name];
+                return newErrors;
+            });
+        }
     };
 
     return (
@@ -41,7 +70,7 @@ export default function Register() {
                         className="mt-1 block w-full"
                         autoComplete="name"
                         isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
+                        onChange={onHandleChange}
                         required
                     />
 
@@ -58,7 +87,7 @@ export default function Register() {
                         value={data.email}
                         className="mt-1 block w-full"
                         autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={onHandleChange}
                         required
                     />
 
@@ -75,7 +104,7 @@ export default function Register() {
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
+                        onChange={onHandleChange}
                         required
                     />
 
@@ -92,7 +121,7 @@ export default function Register() {
                         value={data.password_confirmation}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
-                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                        onChange={onHandleChange}
                         required
                     />
 
@@ -101,14 +130,14 @@ export default function Register() {
 
                 <div className="flex items-center justify-end mt-4">
                     <Link
-                        href={route('login')}
-                        className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        href="/login"
+                        className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500"
                     >
                         Already registered?
                     </Link>
 
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
+                        {processing ? 'Creating account...' : 'Register'}
                     </PrimaryButton>
                 </div>
             </form>
