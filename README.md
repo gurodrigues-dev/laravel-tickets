@@ -14,7 +14,7 @@ A scalable, high-performance ticket booking system built with Laravel 10, featur
 - [API Documentation](#api-documentation)
 - [Business Rules & Configurations](#business-rules--configurations)
 - [Security Features](#security-features)
-- [Additional Tools](#additional-tools)
+- [Project Demo](#project-demo)
 
 ---
 
@@ -950,3 +950,12 @@ WHERE id = 1 AND version = 5
 | Trusted Proxies | Load balancer support |
 
 ---
+
+## Project Demo
+> Click on the thumbnail to be redirected.
+
+### 🖥️ Application Demo
+[![Application Demo](https://img.youtube.com/vi/4EgeTskXjqU/0.jpg)](https://www.youtube.com/watch?v=4EgeTskXjqU)
+
+### 📱 Responsive Version
+[![Responsive Demo](https://img.youtube.com/vi/jRpU5i1uMac/0.jpg)](https://www.youtube.com/watch?v=jRpU5i1uMac)
