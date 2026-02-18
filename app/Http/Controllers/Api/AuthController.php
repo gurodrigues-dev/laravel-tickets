@@ -85,21 +85,58 @@ class AuthController extends Controller
     {
         $request->ensureIsNotRateLimited();
 
-        $result = $this->authService->login(
-            $request->email,
-            $request->password,
-            $request->remember ?? false
-        );
+        $email = $request->input('email');
+        $password = $request->input('password');
+        $remember = $request->boolean('remember');
+
+        $isValidEmail = filter_var($email, FILTER_VALIDATE_EMAIL);
+
+        if ($email !== trim($email)) {
+            \Illuminate\Support\Facades\RateLimiter::hit($request->throttleKey());
+
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        if (! $isValidEmail) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+                'errors' => [
+                    'email' => ['The email field must be a valid email address.'],
+                ],
+            ], 422);
+        }
+
+        $user = \App\Models\User::whereRaw('LOWER(email) = LOWER(?)', [$email])->first();
+
+        if (! $user) {
+            \Illuminate\Support\Facades\RateLimiter::hit($request->throttleKey());
+
+            return response()->json([
+                'message' => 'Invalid credentials',
+                'errors' => [
+                    'email' => ['The provided credentials are incorrect.'],
+                ],
+            ], 422);
+        }
+
+        if (! \Illuminate\Support\Facades\Hash::check($password, $user->password)) {
+            \Illuminate\Support\Facades\RateLimiter::hit($request->throttleKey());
+
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        \Illuminate\Support\Facades\RateLimiter::clear($request->throttleKey());
+
+        \Illuminate\Support\Facades\Auth::login($user, $remember);
+
+        $request->session()->regenerate();
 
         return response()->json([
-            'success' => true,
             'message' => 'Login successful',
-            'user' => [
-                'id' => $result['user']->id,
-                'name' => $result['user']->name,
-                'email' => $result['user']->email,
-            ],
-            'token' => $result['token'],
         ], 200);
     }
 
@@ -124,19 +161,22 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        try {
-            $this->authService->logout($request);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Logout successful',
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred during logout.',
-            ], 500);
+        // Logout from the web guard (session-based)
+        $webGuard = \Illuminate\Support\Facades\Auth::guard('web');
+        if (method_exists($webGuard, 'logout')) {
+            $webGuard->logout();
         }
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        // Clear the authentication
+        \Illuminate\Support\Facades\Auth::forgetGuards();
+
+        return response()->json([
+            'message' => 'Logged out',
+        ], 200);
     }
 
     /**
@@ -170,25 +210,21 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        try {
-            $user = $this->authService->getCurrentUser($request);
+        $user = $request->user();
 
-            if (! $user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated',
-                ], 401);
-            }
-
+        if (! $user) {
             return response()->json([
-                'success' => true,
-                'user' => $user,
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching user data.',
-            ], 500);
+                'message' => 'Unauthenticated',
+            ], 401);
         }
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'email_verified_at' => $user->email_verified_at?->format('Y-m-d H:i:s'),
+            'created_at' => $user->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $user->updated_at?->format('Y-m-d H:i:s'),
+        ], 200);
     }
 }

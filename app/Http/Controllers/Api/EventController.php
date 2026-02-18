@@ -25,27 +25,35 @@ class EventController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/events",
-     *     summary="Get all events",
+     *     summary="Get paginated list of events",
      *     tags={"Events"},
      *     security={{"sanctum":{}}},
      *
      *     @OA\Parameter(
-     *         name="status",
+     *         name="page",
      *         in="query",
-     *         description="Filter events by status (upcoming, ongoing, completed)",
+     *         description="Page number (default: 1)",
      *         required=false,
      *
-     *         @OA\Schema(type="string", enum={"upcoming", "ongoing", "completed"})
+     *         @OA\Schema(type="integer", default=1, minimum=1)
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Number of items per page (default: 10, max: 100)",
+     *         required=false,
+     *
+     *         @OA\Schema(type="integer", default=10, minimum=1, maximum=100)
      *     ),
      *
      *     @OA\Response(
      *         response=200,
-     *         description="List of events",
+     *         description="Paginated list of events",
      *
      *         @OA\JsonContent(
      *             type="object",
      *
-     *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="data", type="array",
      *
      *                 @OA\Items(
@@ -62,15 +70,32 @@ class EventController extends Controller
      *                     @OA\Property(property="created_at", type="string", format="date-time"),
      *                     @OA\Property(property="updated_at", type="string", format="date-time")
      *                 )
+     *             ),
+     *             @OA\Property(property="meta", type="object",
+     *                 @OA\Property(property="current_page", type="integer", example=1),
+     *                 @OA\Property(property="last_page", type="integer", example=10),
+     *                 @OA\Property(property="per_page", type="integer", example=10),
+     *                 @OA\Property(property="total", type="integer", example=100),
+     *                 @OA\Property(property="from", type="integer", example=1),
+     *                 @OA\Property(property="to", type="integer", example=10)
+     *             ),
+     *             @OA\Property(property="links", type="object",
+     *                 @OA\Property(property="first", type="string", example="/api/v1/events?page=1"),
+     *                 @OA\Property(property="last", type="string", example="/api/v1/events?page=10"),
+     *                 @OA\Property(property="prev", type="string", example=null),
+     *                 @OA\Property(property="next", type="string", example="/api/v1/events?page=2")
      *             )
      *         )
      *     )
      * )
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = min(100, max(1, (int) $request->input('per_page', 10)));
+
         return response()->json(
-            $this->service->listEvents()
+            $this->service->listEvents($perPage, $page)
         );
     }
 

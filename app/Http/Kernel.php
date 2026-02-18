@@ -42,7 +42,10 @@ class Kernel extends HttpKernel
 
         'api' => [
             \App\Http\Middleware\ForceJsonResponse::class,
+            \App\Http\Middleware\HandleInvalidJson::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];

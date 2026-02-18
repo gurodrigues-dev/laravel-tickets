@@ -125,11 +125,16 @@ class PasswordResetController extends Controller
                 'success' => true,
                 'message' => 'Password has been reset successfully.',
             ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ], $e->getCode() ?? 422);
+            ], 422);
         }
     }
 }
