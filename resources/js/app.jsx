@@ -1,5 +1,11 @@
+import axios from 'axios';
 import './bootstrap';
 import '../css/app.css';
+
+axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+axios.defaults.withCredentials = true;
 
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
