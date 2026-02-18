@@ -66,15 +66,15 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                     <div>
                         <p className="text-sm mt-2 text-gray-800">
                             Your email address is unverified.
-                            <Link
-                                href={route('verification.send')}
-                                method="post"
-                                as="button"
-                                className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Click here to re-send the verification email.
-                            </Link>
                         </p>
+                        <Link
+                            href={route('verification.send')}
+                            method="post"
+                            as="button"
+                            className="mt-2 block text-sm text-indigo-600 hover:text-indigo-700 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            Click here to re-send the verification email.
+                        </Link>
 
                         {status === 'verification-link-sent' && (
                             <div className="mt-2 font-medium text-sm text-green-600">
