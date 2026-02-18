@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import BookingModal from '@/Components/BookingModal';
 import { getErrorMessage } from '@/utils/errorHandler';
 import Spinner from '@/Components/Spinner';
+import { useInfiniteScroll, InfiniteScrollLoader } from '@/hooks/useInfiniteScroll';
 
 export default function Index({ auth }) {
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -21,22 +19,26 @@ export default function Index({ auth }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
-    const fetchEvents = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get('/api/v1/events');
-            setEvents(response.data);
-            setError(null);
-        } catch (error) {
-            setError(getErrorMessage(error));
-        } finally {
-            setLoading(false);
-        }
+    // Fetch events with pagination
+    const fetchEvents = async (page, perPage) => {
+        const response = await axios.get(`/api/v1/events?page=${page}&per_page=${perPage}`);
+        return response;
     };
 
-    useEffect(() => {
-        fetchEvents();
-    }, []);
+    // Infinite scroll hook
+    const {
+        data: events,
+        loading: paginationLoading,
+        initialLoading,
+        hasMore,
+        error: paginationError,
+        retry,
+        observerRef
+    } = useInfiniteScroll(fetchEvents, {
+        initialPage: 1,
+        perPage: 10,
+        loadMoreText: 'Loading more events...'
+    });
 
     const handleBookTickets = (event) => {
         if (isEventPast(event.event_date)) {
@@ -47,7 +49,8 @@ export default function Index({ auth }) {
     };
 
     const handleBookingSuccess = (reservation) => {
-        fetchEvents();
+        // Refresh data on booking success
+        retry();
     };
 
     const handleCloseModal = () => {
@@ -144,7 +147,7 @@ export default function Index({ auth }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6">
                             {/* Filter Button and Collapsible Panel */}
-                            {!loading && (
+                            {!initialLoading && (
                                 <>
                                     {/* Filter Button */}
                                     <button
@@ -309,18 +312,18 @@ export default function Index({ auth }) {
                                 </>
                             )}
 
-                            {loading ? (
+                             {initialLoading ? (
                                 <div className="flex justify-center items-center h-64">
                                     <Spinner size="lg" text="Loading events..." />
                                 </div>
-                            ) : error ? (
+                            ) : paginationError && events.length === 0 ? (
                                 <div className="text-center py-12">
                                     <svg className="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
-                                    <p className="mt-4 text-red-600">{error}</p>
+                                    <p className="mt-4 text-red-600">{getErrorMessage(paginationError)}</p>
                                     <button
-                                        onClick={fetchEvents}
+                                        onClick={retry}
                                         className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors min-h-[44px]"
                                     >
                                         Try Again
@@ -344,87 +347,100 @@ export default function Index({ auth }) {
                                         </button>
                                     )}
                                 </div>
-                            ) : (
-                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                      {filteredEvents.map((event) => {
-                                          const isPast = isEventPast(event.event_date);
-                                          return (
-                                              <div key={event.id} className={`border rounded-lg overflow-hidden transition-shadow ${isPast ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-lg'}`}>
-                                                  <div className="p-6">
-                                                      <h3 className={`text-xl font-semibold mb-2 ${isPast ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
-                                                          {event.name}
-                                                      </h3>
-                                                      {event.description && (
-                                                          <p className={`mb-4 line-clamp-3 ${isPast ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'}`}>
-                                                              {event.description}
-                                                          </p>
-                                                      )}
-                                                      <div className="space-y-2 mb-4">
-                                                          {event.event_date && (
-                                                              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                                 </svg>
-                                                                 {new Date(event.event_date).toLocaleDateString()}
-                                                                  {isPast && (
-                                                                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
-                                                                          Event ended
-                                                                      </span>
-                                                                  )}
-                                                              </div>
+                             ) : (
+                                  <div>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                          {filteredEvents.map((event) => {
+                                              const isPast = isEventPast(event.event_date);
+                                              return (
+                                                  <div key={event.id} className={`border rounded-lg overflow-hidden transition-shadow ${isPast ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-lg'}`}>
+                                                      <div className="p-6">
+                                                          <h3 className={`text-xl font-semibold mb-2 ${isPast ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                                                              {event.name}
+                                                          </h3>
+                                                          {event.description && (
+                                                              <p className={`mb-4 line-clamp-3 ${isPast ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'}`}>
+                                                                  {event.description}
+                                                              </p>
                                                           )}
-                                                           <div className="flex items-center text-sm">
-                                                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                                                               </svg>
-                                                               <span className={`font-medium ${event.available_tickets > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                                                   {event.available_tickets} available
-                                                               </span>
-                                                               {event.total_tickets != null ? (
-                                                                   <span className="text-gray-500 dark:text-gray-400"> / {event.total_tickets}</span>
-                                                               ) : null}
-                                                           </div>
-                                                     </div>
-                                                        <button
-                                                            onClick={() => handleBookTickets(event)}
-                                                            disabled={event.available_tickets === 0 || isPast}
-                                                            className={`w-full px-4 py-3 text-sm md:text-base font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 min-h-[44px] flex items-center justify-center gap-2 ${
-                                                                isPast
-                                                                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                                                                    : event.available_tickets === 0
-                                                                        ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                                                                        : 'bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500'
-                                                            }`}
-                                                        >
-                                                           {isPast ? (
-                                                               <>
-                                                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 18.364m12.728-12.728l-12.728 12.728" />
-                                                                   </svg>
-                                                                   Event Ended
-                                                               </>
-                                                           ) : event.available_tickets === 0 ? (
-                                                               <>
-                                                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 18.364m12.728-12.728l-12.728 12.728" />
-                                                                   </svg>
-                                                                   Sold Out
-                                                               </>
-                                                           ) : (
-                                                               <>
-                                                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                                                                   </svg>
-                                                                   Book Tickets
-                                                               </>
-                                                           )}
-                                                       </button>
-                                                 </div>
-                                             </div>
-                                         );
-                                     })}
-                                </div>
-                            )}
+                                                          <div className="space-y-2 mb-4">
+                                                              {event.event_date && (
+                                                                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                                                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                      </svg>
+                                                                      {new Date(event.event_date).toLocaleDateString()}
+                                                                       {isPast && (
+                                                                           <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
+                                                                               Event ended
+                                                                           </span>
+                                                                       )}
+                                                                  </div>
+                                                              )}
+                                                               <div className="flex items-center text-sm">
+                                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                                                    </svg>
+                                                                    <span className={`font-medium ${event.available_tickets > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                                        {event.available_tickets} available
+                                                                    </span>
+                                                                    {event.total_tickets != null ? (
+                                                                        <span className="text-gray-500 dark:text-gray-400"> / {event.total_tickets}</span>
+                                                                    ) : null}
+                                                                </div>
+                                                          </div>
+                                                             <button
+                                                                 onClick={() => handleBookTickets(event)}
+                                                                 disabled={event.available_tickets === 0 || isPast}
+                                                                 className={`w-full px-4 py-3 text-sm md:text-base font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 min-h-[44px] flex items-center justify-center gap-2 ${
+                                                                     isPast
+                                                                         ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                                         : event.available_tickets === 0
+                                                                             ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                                             : 'bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500'
+                                                                 }`}
+                                                             >
+                                                                {isPast ? (
+                                                                    <>
+                                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 18.364m12.728-12.728l-12.728 12.728" />
+                                                                        </svg>
+                                                                        Event Ended
+                                                                    </>
+                                                                ) : event.available_tickets === 0 ? (
+                                                                    <>
+                                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 18.364m12.728-12.728l-12.728 12.728" />
+                                                                        </svg>
+                                                                        Sold Out
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                                                        </svg>
+                                                                        Book Tickets
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                      </div>
+                                                  </div>
+                                              );
+                                          })}
+                                      </div>
+
+                                      {/* Infinite Scroll Loader */}
+                                      <div ref={observerRef} className="mt-6">
+                                          <InfiniteScrollLoader
+                                              loading={paginationLoading}
+                                              hasMore={hasMore}
+                                              error={paginationError}
+                                              retry={retry}
+                                              text="Loading more events..."
+                                          />
+                                      </div>
+                                  </div>
+                             )}
                         </div>
                     </div>
                 </div>

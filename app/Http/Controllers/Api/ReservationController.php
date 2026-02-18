@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateReservationRequest;
 use App\Services\Contracts\ReservationServiceInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
@@ -94,17 +95,34 @@ class ReservationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/reservations/my-reservations",
-     *     summary="Get current user's reservations",
+     *     summary="Get paginated list of current user's reservations",
      *     tags={"Reservations"},
      *     security={{"sanctum":{}}},
      *
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number (default: 1)",
+     *         required=false,
+     *
+     *         @OA\Schema(type="integer", default=1, minimum=1)
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Number of items per page (default: 10, max: 100)",
+     *         required=false,
+     *
+     *         @OA\Schema(type="integer", default=10, minimum=1, maximum=100)
+     *     ),
+     *
      *     @OA\Response(
      *         response=200,
-     *         description="List of user reservations",
+     *         description="Paginated list of user reservations",
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="data", type="array",
      *
      *                 @OA\Items(
@@ -112,6 +130,7 @@ class ReservationController extends Controller
      *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="event_id", type="integer", example=1),
+     *                     @OA\Property(property="user_id", type="integer", example=2),
      *                     @OA\Property(property="event", type="object",
      *                         @OA\Property(property="id", type="integer", example=1),
      *                         @OA\Property(property="name", type="string", example="Tech Conference 2024"),
@@ -122,15 +141,32 @@ class ReservationController extends Controller
      *                     @OA\Property(property="version", type="integer", example=1),
      *                     @OA\Property(property="created_at", type="string", format="date-time")
      *                 )
+     *             ),
+     *             @OA\Property(property="meta", type="object",
+     *                 @OA\Property(property="current_page", type="integer", example=1),
+     *                 @OA\Property(property="last_page", type="integer", example=5),
+     *                 @OA\Property(property="per_page", type="integer", example=10),
+     *                 @OA\Property(property="total", type="integer", example=45),
+     *                 @OA\Property(property="from", type="integer", example=1),
+     *                 @OA\Property(property="to", type="integer", example=10)
+     *             ),
+     *             @OA\Property(property="links", type="object",
+     *                 @OA\Property(property="first", type="string", example="/api/v1/reservations/my-reservations?page=1"),
+     *                 @OA\Property(property="last", type="string", example="/api/v1/reservations/my-reservations?page=5"),
+     *                 @OA\Property(property="prev", type="string", example=null),
+     *                 @OA\Property(property="next", type="string", example="/api/v1/reservations/my-reservations?page=2")
      *             )
      *         )
      *     )
      * )
      */
-    public function myReservations(): JsonResponse
+    public function myReservations(Request $request): JsonResponse
     {
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = min(100, max(1, (int) $request->input('per_page', 10)));
+
         return response()->json(
-            $this->service->listUserReservations(auth()->id())
+            $this->service->listUserReservations(auth()->id(), $perPage, $page)
         );
     }
 

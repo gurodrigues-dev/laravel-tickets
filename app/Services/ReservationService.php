@@ -194,8 +194,34 @@ class ReservationService implements ReservationServiceInterface
         });
     }
 
-    public function listUserReservations(int $userId)
+    /**
+     * List user reservations with pagination
+     *
+     * @param  int  $userId  User ID
+     * @param  int  $perPage  Number of items per page (default: 10)
+     * @param  int  $page  Current page number (default: 1)
+     * @return array Paginated response with data, meta, and links
+     */
+    public function listUserReservations(int $userId, int $perPage = 10, int $page = 1): array
     {
-        return $this->reservationRepository->findByUser($userId);
+        $paginator = $this->reservationRepository->findByUserPaginated($userId, $perPage, $page);
+
+        return [
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+            ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last' => $paginator->url($paginator->lastPage()),
+                'prev' => $paginator->previousPageUrl(),
+                'next' => $paginator->nextPageUrl(),
+            ],
+        ];
     }
 }

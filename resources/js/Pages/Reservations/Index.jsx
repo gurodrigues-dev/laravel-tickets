@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -8,11 +8,9 @@ import DangerButton from '@/Components/DangerButton';
 import axios from 'axios';
 import { getErrorMessage } from '@/utils/errorHandler';
 import Spinner, { ButtonSpinner } from '@/Components/Spinner';
+import { useInfiniteScroll, InfiniteScrollLoader } from '@/hooks/useInfiniteScroll';
 
 export default function Index({ auth }) {
-    const [reservations, setReservations] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
 
     const [updateModalOpen, setUpdateModalOpen] = useState(false);
@@ -24,22 +22,26 @@ export default function Index({ auth }) {
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [cancelLoading, setCancelLoading] = useState(false);
 
-    const fetchReservations = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.get('/api/v1/reservations/my-reservations');
-            setReservations(response.data);
-        } catch (err) {
-            setError(getErrorMessage(err));
-        } finally {
-            setLoading(false);
-        }
+    // Fetch reservations with pagination
+    const fetchReservations = async (page, perPage) => {
+        const response = await axios.get(`/api/v1/reservations/my-reservations?page=${page}&per_page=${perPage}`);
+        return response;
     };
 
-    useEffect(() => {
-        fetchReservations();
-    }, []);
+    // Infinite scroll hook
+    const {
+        data: reservations,
+        loading: paginationLoading,
+        initialLoading,
+        hasMore,
+        error: paginationError,
+        retry,
+        observerRef
+    } = useInfiniteScroll(fetchReservations, {
+        initialPage: 1,
+        perPage: 10,
+        loadMoreText: 'Loading more reservations...'
+    });
 
     const openUpdateModal = (reservation) => {
         setSelectedReservation(reservation);
@@ -94,7 +96,7 @@ export default function Index({ auth }) {
 
             setSuccessMessage(`Reservation updated to ${quantity} ticket(s).`);
             setUpdateModalOpen(false);
-            fetchReservations();
+            retry(); // Refresh data after update
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
@@ -116,11 +118,12 @@ export default function Index({ auth }) {
             await axios.delete(`/api/v1/reservations/${selectedReservation.id}`);
             setSuccessMessage('Reservation cancelled successfully.');
             setCancelModalOpen(false);
-            fetchReservations();
+            retry(); // Refresh data after cancellation
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
-            setError(getErrorMessage(err));
+            // Error is handled by the useInfiniteScroll hook
+            // We can add local error handling here if needed
         } finally {
             setCancelLoading(false);
         }
@@ -174,28 +177,28 @@ export default function Index({ auth }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6">
                              {/* Success Message */}
-                            {successMessage && (
-                                <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 rounded-md">
-                                    {successMessage}
-                                </div>
-                            )}
+                             {successMessage && (
+                                 <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 rounded-md">
+                                     {successMessage}
+                                 </div>
+                             )}
 
-                            {/* Error Message */}
-                            {error && (
-                                <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-md flex items-start">
-                                    <svg className="h-5 w-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>{error}</span>
-                                </div>
-                            )}
+                             {/* Error Message */}
+                             {paginationError && reservations.length === 0 && (
+                                 <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-md flex items-start">
+                                     <svg className="h-5 w-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                     </svg>
+                                     <span>{getErrorMessage(paginationError)}</span>
+                                 </div>
+                             )}
 
-                            {/* Loading State */}
-                            {loading ? (
-                                <div className="text-center py-12">
-                                    <Spinner size="lg" text="Loading reservations..." />
-                                </div>
-                            ) : reservations.length === 0 ? (
+                             {/* Loading State */}
+                             {initialLoading ? (
+                                 <div className="text-center py-12">
+                                     <Spinner size="lg" text="Loading reservations..." />
+                                 </div>
+                             ) : reservations.length === 0 ? (
                                 /* Empty State */
                                 <div className="text-center py-12">
                                     <svg
@@ -214,83 +217,96 @@ export default function Index({ auth }) {
                                     <h3 className="mt-2 text-sm font-medium text-gray-900">No reservations found</h3>
                                     <p className="mt-1 text-sm text-gray-500">You haven't made any reservations yet.</p>
                                 </div>
-                            ) : (
-                                 /* Reservations List */
-                                <div className="space-y-4">
-                                    {reservations.map((reservation) => (
-                                        <div
-                                            key={reservation.id}
-                                            className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow bg-white dark:bg-gray-700/50"
-                                        >
-                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                                <div className="flex-1">
-                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                                        {reservation.event.name}
-                                                    </h3>
-                                                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                                                        <svg
-                                                            className="inline-block h-4 w-4 mr-1"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                                            />
-                                                        </svg>
-                                                        {formatDate(reservation.event.event_date)}
-                                                    </p>
-                                                     <div className="mt-2 flex flex-wrap items-center gap-3">
-                                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
-                                                            <svg
-                                                                className="inline-block h-4 w-4 mr-1"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={2}
-                                                                    d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
-                                                                />
-                                                            </svg>
-                                                            {reservation.quantity} ticket{reservation.quantity !== 1 ? 's' : ''}
-                                                        </span>
-                                                        <span
-                                                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusClasses(
-                                                                reservation.status
-                                                            )}`}
-                                                        >
-                                                            {reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                {reservation.status !== 'cancelled' && (
-                                                    <div className="flex gap-2">
-                                                        <PrimaryButton
-                                                            onClick={() => openUpdateModal(reservation)}
-                                                            className="text-xs min-h-[44px]"
-                                                        >
-                                                            Update Quantity
-                                                        </PrimaryButton>
-                                                         <DangerButton
-                                                             onClick={() => openCancelModal(reservation)}
-                                                             className="text-xs min-h-[44px]"
-                                                         >
-                                                             Cancel
-                                                         </DangerButton>
+                             ) : (
+                                  /* Reservations List */
+                                 <div>
+                                     <div className="space-y-4">
+                                         {reservations.map((reservation) => (
+                                             <div
+                                                 key={reservation.id}
+                                                 className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow bg-white dark:bg-gray-700/50"
+                                             >
+                                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                                     <div className="flex-1">
+                                                         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                             {reservation.event.name}
+                                                         </h3>
+                                                         <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                                                             <svg
+                                                                 className="inline-block h-4 w-4 mr-1"
+                                                                 fill="none"
+                                                                 viewBox="0 0 24 24"
+                                                                 stroke="currentColor"
+                                                             >
+                                                                 <path
+                                                                     strokeLinecap="round"
+                                                                     strokeLinejoin="round"
+                                                                     strokeWidth={2}
+                                                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                 />
+                                                             </svg>
+                                                             {formatDate(reservation.event.event_date)}
+                                                         </p>
+                                                          <div className="mt-2 flex flex-wrap items-center gap-3">
+                                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                                                 <svg
+                                                                     className="inline-block h-4 w-4 mr-1"
+                                                                     fill="none"
+                                                                     viewBox="0 0 24 24"
+                                                                     stroke="currentColor"
+                                                                 >
+                                                                     <path
+                                                                         strokeLinecap="round"
+                                                                         strokeLinejoin="round"
+                                                                         strokeWidth={2}
+                                                                         d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+                                                                     />
+                                                                 </svg>
+                                                                 {reservation.quantity} ticket{reservation.quantity !== 1 ? 's' : ''}
+                                                             </span>
+                                                             <span
+                                                                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusClasses(
+                                                                     reservation.status
+                                                                 )}`}
+                                                             >
+                                                                 {reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1)}
+                                                             </span>
+                                                         </div>
                                                      </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+
+                                                     {reservation.status !== 'cancelled' && (
+                                                         <div className="flex gap-2">
+                                                             <PrimaryButton
+                                                                 onClick={() => openUpdateModal(reservation)}
+                                                                 className="text-xs min-h-[44px]"
+                                                             >
+                                                                 Update Quantity
+                                                             </PrimaryButton>
+                                                              <DangerButton
+                                                                  onClick={() => openCancelModal(reservation)}
+                                                                  className="text-xs min-h-[44px]"
+                                                              >
+                                                                  Cancel
+                                                              </DangerButton>
+                                                          </div>
+                                                     )}
+                                                 </div>
+                                             </div>
+                                         ))}
+                                     </div>
+
+                                     {/* Infinite Scroll Loader */}
+                                     <div ref={observerRef} className="mt-6">
+                                         <InfiniteScrollLoader
+                                             loading={paginationLoading}
+                                             hasMore={hasMore}
+                                             error={paginationError}
+                                             retry={retry}
+                                             text="Loading more reservations..."
+                                         />
+                                     </div>
+                                 </div>
+                             )}
                         </div>
                     </div>
                 </div>

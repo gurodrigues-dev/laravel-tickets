@@ -57,6 +57,16 @@ export default function Login({ status, canResetPassword }) {
 
             {status && <div className="mb-4 font-medium text-sm text-green-600 dark:text-green-400">{status}</div>}
 
+            <div className="mb-4 text-sm text-center">
+                <span className="text-gray-600 dark:text-gray-400">Don't have an account? </span>
+                <Link
+                    href="/register"
+                    className="underline text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 transition-colors"
+                >
+                    Register here
+                </Link>
+            </div>
+
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />

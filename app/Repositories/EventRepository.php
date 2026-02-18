@@ -4,12 +4,30 @@ namespace App\Repositories;
 
 use App\Models\Event;
 use App\Repositories\Contracts\EventRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class EventRepository implements EventRepositoryInterface
 {
+    /**
+     * Get all events (deprecated - use paginate instead)
+     *
+     * @deprecated Use paginate() method for better performance
+     */
     public function all()
     {
         return Event::all();
+    }
+
+    /**
+     * Paginate events
+     *
+     * @param  int  $perPage  Number of items per page
+     * @param  int  $page  Current page number
+     */
+    public function paginate(int $perPage = 10, int $page = 1): LengthAwarePaginator
+    {
+        return Event::orderBy('event_date', 'asc')
+            ->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function findById(int $id): ?Event
@@ -32,7 +50,7 @@ class EventRepository implements EventRepositoryInterface
             ->where('version', $expectedVersion)
             ->update([
                 'available_tickets' => $newAvailableTickets,
-                'version' => $expectedVersion + 1
+                'version' => $expectedVersion + 1,
             ]) > 0;
     }
 }
