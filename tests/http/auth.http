@@ -1,0 +1,40 @@
+### API v1 - Authentication Tests
+### Base URL: http://localhost:8000
+
+### 1. Register New User
+POST http://localhost:8000/api/v1/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}
+
+### 2. Login User
+POST http://localhost:8000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "password123",
+  "remember": false
+}
+
+### 3. Get Current User
+GET http://localhost:8000/api/v1/auth/user
+Authorization: Bearer {{token}}
+
+### 4. Logout User
+POST http://localhost:8000/api/v1/auth/logout
+Authorization: Bearer {{token}}
+
+### 5. Login with Invalid Credentials (should fail)
+POST http://localhost:8000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}

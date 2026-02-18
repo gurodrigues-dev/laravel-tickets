@@ -1,0 +1,42 @@
+### API v1 - Reservations Tests
+### Base URL: http://localhost:8000
+
+### 1. Create Reservation
+POST http://localhost:8000/api/v1/reservations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "event_id": 1,
+  "quantity": 2,
+  "version": 0
+}
+
+### 2. Get My Reservations
+GET http://localhost:8000/api/v1/reservations/my-reservations
+Authorization: Bearer {{token}}
+
+### 3. Update Reservation
+PUT http://localhost:8000/api/v1/reservations/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantity": 3,
+  "version": 0
+}
+
+### 4. Cancel Reservation
+DELETE http://localhost:8000/api/v1/reservations/1
+Authorization: Bearer {{token}}
+
+### 5. Create Reservation - Exceed Limit (should fail)
+POST http://localhost:8000/api/v1/reservations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "event_id": 1,
+  "quantity": 10,
+  "version": 0
+}

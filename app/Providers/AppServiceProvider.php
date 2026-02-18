@@ -8,10 +8,14 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\EventRepository;
 use App\Repositories\ReservationRepository;
 use App\Repositories\UserRepository;
+use App\Services\AuthService;
+use App\Services\Contracts\AuthServiceInterface;
 use App\Services\Contracts\EventServiceInterface;
+use App\Services\Contracts\PasswordResetServiceInterface;
 use App\Services\Contracts\ReservationServiceInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Services\EventService;
+use App\Services\PasswordResetService;
 use App\Services\ReservationService;
 use App\Services\UserService;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -35,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            AuthServiceInterface::class,
+            AuthService::class
+        );
+
+        $this->app->bind(
             EventRepositoryInterface::class,
             EventRepository::class
         );
@@ -52,6 +61,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ReservationServiceInterface::class,
             ReservationService::class
+        );
+
+        $this->app->bind(
+            PasswordResetServiceInterface::class,
+            PasswordResetService::class
         );
     }
 
