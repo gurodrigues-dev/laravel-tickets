@@ -17,11 +17,16 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('events.index');
+    }
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'auth' => [
+            'user' => null,
+        ],
     ]);
 });
 

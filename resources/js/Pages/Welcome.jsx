@@ -1,342 +1,669 @@
 import { Link, Head } from '@inertiajs/react';
 
-export default function Welcome({ auth, laravelVersion, phpVersion }) {
+export default function Welcome({ auth, canLogin, canRegister }) {
     return (
         <>
-            <Head title="Welcome" />
-            <div className="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-indigo-500 selection:text-white">
-                <div className="sm:fixed sm:top-0 sm:right-0 p-6 text-end">
-                    {auth.user ? (
-                        <Link
-                            href="/events"
-                            className="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                        >
-                            Events
-                        </Link>
-                    ) : (
-                        <>
-                        <Link
-                            href="/login"
-                            className="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                        >
-                                Log in
+            <Head title="TicketBook - Event Ticket Booking" />
+
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+                {/* Navigation */}
+                <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-16">
+                            <Link href="/" className="flex items-center space-x-2">
+                                <svg
+                                    viewBox="0 0 64 64"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-8 w-auto"
+                                >
+                                    <defs>
+                                        <linearGradient id="ticketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#818cf8" />
+                                            <stop offset="100%" stopColor="#6366f1" />
+                                        </linearGradient>
+                                    </defs>
+                                    <rect x="4" y="16" width="56" height="32" rx="8" fill="url(#ticketGradient)" />
+                                    <circle cx="4" cy="32" r="4" fill="#f3f4f6" />
+                                    <circle cx="60" cy="32" r="4" fill="#f3f4f6" />
+                                    <rect x="14" y="22" width="36" height="20" rx="4" fill="white" opacity="0.95" />
+                                    <path d="M32 26l2 4h4l-3 2 1 4-4-2-4 2 1-4-3-2 4h4z" fill="#6366f1" />
+                                </svg>
+                                <span className="text-xl font-bold text-gray-900 dark:text-white">TicketBook</span>
                             </Link>
 
-                            <Link
-                                href="/register"
-                                className="ms-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                            >
-                                Register
-                            </Link>
-                        </>
-                    )}
-                </div>
-
-                <div className="max-w-7xl mx-auto p-6 lg:p-8">
-                    <div className="flex justify-center">
-                        <svg
-                            viewBox="0 0 64 64"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-16 w-auto bg-gray-100 dark:bg-gray-900"
-                        >
-                            <defs>
-                                <linearGradient id="welcomeTicketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#818cf8" />
-                                    <stop offset="100%" stopColor="#6366f1" />
-                                </linearGradient>
-                                <filter id="welcomeShadow" x="-20%" y="-20%" width="140%" height="140%">
-                                    <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#6366f1" floodOpacity="0.3"/>
-                                </filter>
-                            </defs>
-                            {/* Ticket body */}
-                            <rect x="4" y="16" width="56" height="32" rx="8" fill="url(#welcomeTicketGradient)" filter="url(#welcomeShadow)" />
-
-                            {/* Side perforations */}
-                            <circle cx="4" cy="32" r="4" fill="#f3f4f6" />
-                            <circle cx="60" cy="32" r="4" fill="#f3f4f6" />
-
-                            {/* Inner ticket area */}
-                            <rect x="14" y="22" width="36" height="20" rx="4" fill="white" opacity="0.95" />
-
-                            {/* Diamond/star accent */}
-                            <path d="M32 26l2 4h4l-3 2 1 4-4-2-4 2 1-4-3-2 4h4z" fill="#6366f1" />
-
-                            {/* Decorative lines */}
-                            <rect x="18" y="28" width="28" height="1" fill="#6366f1" opacity="0.2" rx="0.5" />
-                            <rect x="20" y="36" width="24" height="1" fill="#6366f1" opacity="0.2" rx="0.5" />
-
-                            {/* Corner accents */}
-                            <circle cx="8" cy="20" r="1.5" fill="white" opacity="0.4" />
-                            <circle cx="56" cy="20" r="1.5" fill="white" opacity="0.4" />
-                            <circle cx="8" cy="44" r="1.5" fill="white" opacity="0.4" />
-                            <circle cx="56" cy="44" r="1.5" fill="white" opacity="0.4" />
-                        </svg>
+                            <div className="flex items-center space-x-4">
+                                {canLogin && (
+                                    <Link
+                                        href="/login"
+                                        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors min-h-[44px] flex items-center px-3 py-2"
+                                    >
+                                        Sign In
+                                    </Link>
+                                )}
+                                {canRegister && (
+                                    <Link
+                                        href="/register"
+                                        className="bg-indigo-600 dark:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-200 hover:scale-105 min-h-[44px] flex items-center shadow-md hover:shadow-lg"
+                                    >
+                                        Get Started
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
                     </div>
+                </nav>
 
-                    <div className="mt-16">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                            <a
-                                href="https://laravel.com/docs"
-                                className="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-indigo-500"
-                            >
-                                <div>
-                                    <div className="h-16 w-16 bg-red-50 dark:bg-indigo-800/20 flex items-center justify-center rounded-full">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            className="w-7 h-7 stroke-indigo-500"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-                                            />
+                {/* Hero Section */}
+                <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="text-center lg:text-left">
+                                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+                                    Book Your Event Tickets{' '}
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+                                        Effortlessly
+                                    </span>
+                                </h1>
+                                <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0">
+                                    Discover amazing events and secure your spot in seconds. Simple, fast, and reliable ticket booking for all your favorite events.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                    <Link
+                                        href="/register"
+                                        className="bg-indigo-600 dark:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl min-h-[44px] flex items-center justify-center"
+                                    >
+                                        Get Started
+                                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                         </svg>
-                                    </div>
-
-                                    <h2 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
-                                        Documentation
-                                    </h2>
-
-                                    <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                        Laravel has wonderful documentation covering every aspect of the framework.
-                                        Whether you are a newcomer or have prior experience with Laravel, we recommend
-                                        reading our documentation from beginning to end.
-                                    </p>
+                                    </Link>
+                                    <button
+                                        onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+                                        className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-semibold text-lg border-2 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 min-h-[44px] flex items-center justify-center"
+                                    >
+                                        Learn More
+                                    </button>
                                 </div>
-
+                            </div>
+                            <div className="flex justify-center">
                                 <svg
-                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 400 400"
                                     fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    className="self-center shrink-0 stroke-indigo-500 w-6 h-6 mx-6"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-full max-w-md"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                                    />
+                                    <defs>
+                                        <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#818cf8" />
+                                            <stop offset="100%" stopColor="#6366f1" />
+                                        </linearGradient>
+                                        <filter id="heroShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feDropShadow dx="0" dy="20" stdDeviation="30" floodColor="#6366f1" floodOpacity="0.3"/>
+                                        </filter>
+                                    </defs>
+                                    {/* Main ticket */}
+                                    <rect x="50" y="100" width="300" height="200" rx="16" fill="url(#heroGradient)" filter="url(#heroShadow)" />
+                                    {/* Side perforations */}
+                                    <circle cx="50" cy="200" r="20" fill="#f3f4f6" />
+                                    <circle cx="350" cy="200" r="20" fill="#f3f4f6" />
+                                    {/* Inner ticket area */}
+                                    <rect x="80" y="140" width="240" height="120" rx="12" fill="white" opacity="0.98" />
+                                    {/* Ticket content */}
+                                    <rect x="100" y="170" width="200" height="4" rx="2" fill="#6366f1" opacity="0.3" />
+                                    <rect x="120" y="190" width="160" height="4" rx="2" fill="#6366f1" opacity="0.2" />
+                                    <rect x="140" y="210" width="120" height="4" rx="2" fill="#6366f1" opacity="0.2" />
+                                    {/* Decorative elements */}
+                                    <circle cx="100" cy="160" r="8" fill="#6366f1" />
+                                    <rect x="120" y="240" width="60" height="2" rx="1" fill="#6366f1" opacity="0.4" />
+                                    <rect x="120" y="246" width="80" height="2" rx="1" fill="#6366f1" opacity="0.3" />
+                                    {/* Star accent */}
+                                    <path d="M200 160l6 12h12l-10 7 4 12-12-8-12 8 4-12-10-7h12z" fill="#6366f1" />
+                                    {/* Floating elements */}
+                                    <circle cx="80" cy="80" r="8" fill="#818cf8" opacity="0.6" />
+                                    <circle cx="320" cy="320" r="12" fill="#818cf8" opacity="0.4" />
+                                    <circle cx="100" cy="340" r="6" fill="#818cf8" opacity="0.5" />
+                                    <rect x="340" y="100" width="30" height="30" rx="6" fill="#818cf8" opacity="0.3" transform="rotate(15 355 115)" />
                                 </svg>
-                            </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                            <a
-                                href="https://laracasts.com"
-                                className="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-indigo-500"
-                            >
-                                <div>
-                                    <div className="h-16 w-16 bg-red-50 dark:bg-indigo-800/20 flex items-center justify-center rounded-full">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            className="w-7 h-7 stroke-indigo-500"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"
-                                            />
-                                        </svg>
-                                    </div>
+                {/* Features Section */}
+                <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-800">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                                Why Choose TicketBook?
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                                Experience the easiest way to book event tickets with our platform designed for simplicity and reliability.
+                            </p>
+                        </div>
 
-                                    <h2 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
-                                        Laracasts
-                                    </h2>
-
-                                    <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                        Laracasts offers thousands of video tutorials on Laravel, PHP, and JavaScript
-                                        development. Check them out, see for yourself, and massively level up your
-                                        development skills in the process.
-                                    </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {/* Feature 1 */}
+                            <div className="group p-6 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                                <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                    <svg className="w-7 h-7 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                    </svg>
                                 </div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                    Easy Booking
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Reserve tickets in just a few clicks with our streamlined booking process.
+                                </p>
+                            </div>
 
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    className="self-center shrink-0 stroke-indigo-500 w-6 h-6 mx-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                                    />
-                                </svg>
-                            </a>
-
-                            <a
-                                href="https://laravel-news.com"
-                                className="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-indigo-500"
-                            >
-                                <div>
-                                    <div className="h-16 w-16 bg-red-50 dark:bg-indigo-800/20 flex items-center justify-center rounded-full">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            className="w-7 h-7 stroke-indigo-500"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z"
-                                            />
-                                        </svg>
-                                    </div>
-
-                                    <h2 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
-                                        Laravel News
-                                    </h2>
-
-                                    <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                        Laravel News is a community driven portal and newsletter aggregating all of the
-                                        latest and most important news in the Laravel ecosystem, including new package
-                                        releases and tutorials.
-                                    </p>
+                            {/* Feature 2 */}
+                            <div className="group p-6 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                                <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                    <svg className="w-7 h-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
                                 </div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                    Real-time Availability
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    See ticket availability updated instantly so you never miss an opportunity.
+                                </p>
+                            </div>
 
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    className="self-center shrink-0 stroke-indigo-500 w-6 h-6 mx-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                                    />
-                                </svg>
-                            </a>
+                            {/* Feature 3 */}
+                            <div className="group p-6 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                                <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                    <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                    Secure Transactions
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Your data and payments are protected with enterprise-grade security.
+                                </p>
+                            </div>
 
-                            <div className="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-indigo-500">
-                                <div>
-                                    <div className="h-16 w-16 bg-red-50 dark:bg-indigo-800/20 flex items-center justify-center rounded-full">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            className="w-7 h-7 stroke-indigo-500"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M6.115 5.19l.319 1.913A6 6 0 008.11 10.36L9.75 12l-.387.775c-.217.433-.132.956.21 1.298l1.348 1.348c.21.21.329.497.329.795v1.089c0 .426.24.815.622 1.006l.153.076c.433.217.956.132 1.298-.21l.723-.723a8.7 8.7 0 002.288-4.042 1.087 1.087 0 00-.358-1.099l-1.33-1.108c-.251-.21-.582-.299-.905-.245l-1.17.195a1.125 1.125 0 01-.98-.314l-.295-.295a1.125 1.125 0 010-1.591l.13-.132a1.125 1.125 0 011.3-.21l.603.302a.809.809 0 001.086-1.086L14.25 7.5l1.256-.837a4.5 4.5 0 001.528-1.732l.146-.292M6.115 5.19A9 9 0 1017.18 4.64M6.115 5.19A8.965 8.965 0 0112 3c1.929 0 3.716.607 5.18 1.64"
-                                            />
+                            {/* Feature 4 */}
+                            <div className="group p-6 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                                <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                    <svg className="w-7 h-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                    Mobile Friendly
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Book from any device, anywhere with our fully responsive platform.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* How It Works Section */}
+                <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                                How It Works
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                                Get your tickets in three simple steps.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                            {/* Step 1 */}
+                            <div className="relative text-center">
+                                <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 z-10">
+                                    <svg className="w-12 h-12 text-indigo-300 dark:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </div>
+                                <div className="relative inline-block mb-6">
+                                    <div className="w-20 h-20 bg-indigo-600 dark:bg-indigo-700 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
                                     </div>
+                                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 dark:bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm shadow-md">
+                                        1
+                                    </div>
+                                </div>
+                                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    Browse Events
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Explore our curated list of upcoming events and find something exciting.
+                                </p>
+                            </div>
 
-                                    <h2 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
-                                        Vibrant Ecosystem
-                                    </h2>
+                            {/* Step 2 */}
+                            <div className="relative text-center">
+                                <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 z-10">
+                                    <svg className="w-12 h-12 text-indigo-300 dark:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </div>
+                                <div className="relative inline-block mb-6">
+                                    <div className="w-20 h-20 bg-indigo-600 dark:bg-indigo-700 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                    </div>
+                                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 dark:bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm shadow-md">
+                                        2
+                                    </div>
+                                </div>
+                                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    Select Tickets
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Choose how many tickets you need and see real-time availability.
+                                </p>
+                            </div>
 
-                                    <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                        Laravel's robust library of first-party tools and libraries, such as{' '}
-                                        <a
-                                            href="https://forge.laravel.com"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Forge
-                                        </a>
-                                        ,{' '}
-                                        <a
-                                            href="https://vapor.laravel.com"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Vapor
-                                        </a>
-                                        ,{' '}
-                                        <a
-                                            href="https://nova.laravel.com"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Nova
-                                        </a>
-                                        , and{' '}
-                                        <a
-                                            href="https://envoyer.io"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Envoyer
-                                        </a>{' '}
-                                        help you take your projects to the next level. Pair them with powerful open
-                                        source libraries like{' '}
-                                        <a
-                                            href="https://laravel.com/docs/billing"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Cashier
-                                        </a>
-                                        ,{' '}
-                                        <a
-                                            href="https://laravel.com/docs/dusk"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Dusk
-                                        </a>
-                                        ,{' '}
-                                        <a
-                                            href="https://laravel.com/docs/broadcasting"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Echo
-                                        </a>
-                                        ,{' '}
-                                        <a
-                                            href="https://laravel.com/docs/horizon"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Horizon
-                                        </a>
-                                        ,{' '}
-                                        <a
-                                            href="https://laravel.com/docs/sanctum"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Sanctum
-                                        </a>
-                                        ,{' '}
-                                        <a
-                                            href="https://laravel.com/docs/telescope"
-                                            className="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-indigo-500"
-                                        >
-                                            Telescope
-                                        </a>
-                                        , and more.
-                                    </p>
+                            {/* Step 3 */}
+                            <div className="text-center">
+                                <div className="relative inline-block mb-6">
+                                    <div className="w-20 h-20 bg-indigo-600 dark:bg-indigo-700 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 dark:bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm shadow-md">
+                                        3
+                                    </div>
+                                </div>
+                                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    Book & Go
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Secure your spot and get ready for the event. It's that simple!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Preview Events Section */}
+                <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-800">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                                See What's Coming
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                                Check out some of our featured upcoming events.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                            {/* Event Card 1 */}
+                            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                                <div className="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                                    <svg className="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                    </svg>
+                                </div>
+                                <div className="p-6">
+                                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        Tech Conference 2024
+                                    </h3>
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            March 15, 2024
+                                        </div>
+                                        <div className="flex items-center text-sm">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                            </svg>
+                                            <span className="font-medium text-green-600 dark:text-green-400">150 tickets available</span>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/events"
+                                        className="block w-full text-center bg-indigo-600 dark:bg-indigo-700 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-200 min-h-[44px] flex items-center justify-center"
+                                    >
+                                        View Details
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {/* Event Card 2 */}
+                            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                                <div className="h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+                                    <svg className="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                    </svg>
+                                </div>
+                                <div className="p-6">
+                                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        Music Festival
+                                    </h3>
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            April 5, 2024
+                                        </div>
+                                        <div className="flex items-center text-sm">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                            </svg>
+                                            <span className="font-medium text-green-600 dark:text-green-400">500 tickets available</span>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/events"
+                                        className="block w-full text-center bg-indigo-600 dark:bg-indigo-700 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-200 min-h-[44px] flex items-center justify-center"
+                                    >
+                                        View Details
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {/* Event Card 3 */}
+                            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                                <div className="h-48 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                                    <svg className="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <div className="p-6">
+                                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        Networking Meetup
+                                    </h3>
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            April 20, 2024
+                                        </div>
+                                        <div className="flex items-center text-sm">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                            </svg>
+                                            <span className="font-medium text-green-600 dark:text-green-400">75 tickets available</span>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/events"
+                                        className="block w-full text-center bg-indigo-600 dark:bg-indigo-700 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-200 min-h-[44px] flex items-center justify-center"
+                                    >
+                                        View Details
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="text-center">
+                            <Link
+                                href="/events"
+                                className="inline-flex items-center bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 px-8 py-4 rounded-xl font-semibold text-lg border-2 border-indigo-600 dark:border-indigo-400 hover:bg-indigo-600 dark:hover:bg-indigo-400 hover:text-white dark:hover:text-white transition-all duration-200 min-h-[44px]"
+                            >
+                                View All Events
+                                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Testimonials Section */}
+                <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                                What Our Users Say
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                                Join thousands of satisfied users who trust TicketBook for their event bookings.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {/* Testimonial 1 */}
+                            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center mb-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
+                                    "TicketBook made it so easy to get tickets for our company retreat. The interface is intuitive and the booking process was seamless!"
+                                </p>
+                                <div className="flex items-center">
+                                    <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
+                                        <span className="text-indigo-600 dark:text-indigo-400 font-semibold text-lg">SM</span>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="font-semibold text-gray-900 dark:text-white">Sarah Miller</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Event Organizer</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Testimonial 2 */}
+                            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center mb-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
+                                    "I love how I can see real-time ticket availability. It saved me from driving to a sold-out event. Highly recommend!"
+                                </p>
+                                <div className="flex items-center">
+                                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                        <span className="text-green-600 dark:text-green-400 font-semibold text-lg">JD</span>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="font-semibold text-gray-900 dark:text-white">John Davis</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Event Attendee</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Testimonial 3 */}
+                            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center mb-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
+                                    "The best ticket booking platform I've used. Clean design, fast performance, and excellent customer support. A+ experience!"
+                                </p>
+                                <div className="flex items-center">
+                                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                                        <span className="text-purple-600 dark:text-purple-400 font-semibold text-lg">EW</span>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="font-semibold text-gray-900 dark:text-white">Emily Watson</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Regular User</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <div className="flex justify-center mt-16 px-6 sm:items-center sm:justify-between">
-                        <div className="text-center text-sm sm:text-start">&nbsp;</div>
+                {/* CTA Section */}
+                <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 dark:from-indigo-900 dark:via-purple-900 dark:to-indigo-900 relative overflow-hidden">
+                    {/* Background decoration */}
+                    <div className="absolute inset-0 opacity-10">
+                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <defs>
+                                <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100" height="100" fill="url(#grid)" />
+                        </svg>
+                    </div>
 
-                        <div className="text-center text-sm text-gray-500 dark:text-gray-400 sm:text-end sm:ms-0">
-                            Laravel v{laravelVersion} (PHP v{phpVersion})
+                    <div className="max-w-4xl mx-auto text-center relative z-10">
+                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+                            Ready to Book Your First Event?
+                        </h2>
+                        <p className="text-xl text-indigo-100 dark:text-indigo-200 mb-10 max-w-2xl mx-auto">
+                            Join thousands of users who trust us for their ticket bookings. Get started in minutes.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <Link
+                                href="/register"
+                                className="bg-white text-indigo-600 dark:text-indigo-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all duration-200 hover:scale-105 shadow-xl min-h-[44px] flex items-center justify-center"
+                            >
+                                Create Free Account
+                                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </Link>
+                            <Link
+                                href="/login"
+                                className="bg-transparent text-white px-8 py-4 rounded-xl font-semibold text-lg border-2 border-white hover:bg-white hover:text-indigo-600 transition-all duration-200 min-h-[44px] flex items-center justify-center"
+                            >
+                                Sign In
+                            </Link>
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <style>{`
-                .bg-dots-darker {
-                    background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(0,0,0,0.07)'/%3E%3C/svg%3E");
-                }
-                @media (prefers-color-scheme: dark) {
-                    .dark\\:bg-dots-lighter {
-                        background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E");
-                    }
-                }
-            `}</style>
+                {/* Footer */}
+                <footer className="bg-gray-900 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                            {/* Logo and description */}
+                            <div>
+                                <Link href="/" className="flex items-center space-x-2 mb-4">
+                                    <svg
+                                        viewBox="0 0 64 64"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-8 w-auto"
+                                    >
+                                        <defs>
+                                            <linearGradient id="footerTicketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#818cf8" />
+                                                <stop offset="100%" stopColor="#6366f1" />
+                                            </linearGradient>
+                                        </defs>
+                                        <rect x="4" y="16" width="56" height="32" rx="8" fill="url(#footerTicketGradient)" />
+                                        <circle cx="4" cy="32" r="4" fill="#1f2937" />
+                                        <circle cx="60" cy="32" r="4" fill="#1f2937" />
+                                        <rect x="14" y="22" width="36" height="20" rx="4" fill="white" opacity="0.95" />
+                                        <path d="M32 26l2 4h4l-3 2 1 4-4-2-4 2 1-4-3-2 4h4z" fill="#6366f1" />
+                                    </svg>
+                                    <span className="text-xl font-bold text-white">TicketBook</span>
+                                </Link>
+                                <p className="text-gray-400 text-sm">
+                                    Your trusted platform for effortless event ticket booking. Discover, book, and enjoy amazing events.
+                                </p>
+                            </div>
+
+                            {/* Navigation Links */}
+                            <div>
+                                <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+                                <ul className="space-y-2">
+                                    <li>
+                                        <Link
+                                            href="/events"
+                                            className="text-gray-400 hover:text-white transition-colors"
+                                        >
+                                            Events
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#features"
+                                            className="text-gray-400 hover:text-white transition-colors"
+                                        >
+                                            Features
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#how-it-works"
+                                            className="text-gray-400 hover:text-white transition-colors"
+                                        >
+                                            How It Works
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {/* Contact Links */}
+                            <div>
+                                <h3 className="text-white font-semibold mb-4">Support</h3>
+                                <ul className="space-y-2">
+                                    <li>
+                                        <a
+                                            href="mailto:support@ticketbook.com"
+                                            className="text-gray-400 hover:text-white transition-colors"
+                                        >
+                                            Contact Us
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-gray-400 hover:text-white transition-colors"
+                                        >
+                                            FAQ
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-gray-400 hover:text-white transition-colors"
+                                        >
+                                            Privacy Policy
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                            <p className="text-gray-500 text-sm">
+                                &copy; 2024 TicketBook. All rights reserved.
+                            </p>
+                            <div className="flex space-x-6 mt-4 md:mt-0">
+                                {/* Social icons - placeholder */}
+                                <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="Twitter">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                                    </svg>
+                                </a>
+                                <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="GitHub">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
         </>
     );
 }
