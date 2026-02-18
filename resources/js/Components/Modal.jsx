@@ -9,11 +9,11 @@ export default function Modal({ children, show = false, maxWidth = '2xl', closea
     };
 
     const maxWidthClass = {
-        sm: 'sm:max-w-sm',
-        md: 'sm:max-w-md',
-        lg: 'sm:max-w-lg',
-        xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-2xl',
+        sm: 'sm:max-w-sm max-w-[90vw]',
+        md: 'sm:max-w-md max-w-[90vw]',
+        lg: 'sm:max-w-lg max-w-[90vw]',
+        xl: 'sm:max-w-xl max-w-[90vw]',
+        '2xl': 'sm:max-w-2xl max-w-[90vw]',
     }[maxWidth];
 
     return (
@@ -46,7 +46,7 @@ export default function Modal({ children, show = false, maxWidth = '2xl', closea
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
                     <Dialog.Panel
-                        className={`mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto ${maxWidthClass}`}
+                        className={`mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all w-full sm:w-full sm:mx-auto ${maxWidthClass}`}
                     >
                         {children}
                     </Dialog.Panel>

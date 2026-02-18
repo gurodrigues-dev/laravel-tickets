@@ -6,7 +6,6 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, router } from '@inertiajs/react';
-import { login, formatRateLimitMessage, getFieldValidationError } from '@/utils/auth';
 
 export default function Login({ status, canResetPassword }) {
     const [data, setData] = useState({
@@ -16,8 +15,6 @@ export default function Login({ status, canResetPassword }) {
     });
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState({});
-    const [apiError, setApiError] = useState('');
-    const [rateLimit, setRateLimit] = useState(null);
 
     useEffect(() => {
         return () => {
@@ -25,36 +22,18 @@ export default function Login({ status, canResetPassword }) {
         };
     }, []);
 
-    const submit = async (e) => {
+    const submit = (e) => {
         e.preventDefault();
         setProcessing(true);
-        setApiError('');
-        setErrors({});
-        setRateLimit(null);
 
-        const result = await login(data.email, data.password, data.remember);
-
-        setProcessing(false);
-
-        if (result.success) {
-            // Redirect to intended destination or dashboard
-            const intendedUrl = window.sessionStorage.getItem('intended_url');
-            router.visit(intendedUrl || route('dashboard'), {
-                method: 'get',
-            });
-        } else {
-            // Handle errors
-            if (result.validationErrors) {
-                setErrors(result.validationErrors);
+        router.post('/login', data, {
+            onFinish: () => setProcessing(false),
+            onError: (errors) => {
+                setErrors(errors);
+            },
+            onSuccess: () => {
             }
-
-            if (result.status === 429 && result.retryAfter) {
-                setRateLimit(result.retryAfter);
-                setApiError(formatRateLimitMessage(result.retryAfter));
-            } else {
-                setApiError(result.error);
-            }
-        }
+        });
     };
 
     const onHandleChange = (event) => {
@@ -79,17 +58,6 @@ export default function Login({ status, canResetPassword }) {
             {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
 
             <form onSubmit={submit}>
-                {apiError && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                        <p className="text-sm text-red-600">{apiError}</p>
-                        {rateLimit && (
-                            <p className="text-xs text-red-500 mt-1">
-                                Retry in: {Math.floor(rateLimit / 60)}:{(rateLimit % 60).toString().padStart(2, '0')}
-                            </p>
-                        )}
-                    </div>
-                )}
-
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
 
@@ -104,7 +72,7 @@ export default function Login({ status, canResetPassword }) {
                         onChange={onHandleChange}
                     />
 
-                    <InputError message={getFieldValidationError(errors, 'email') || errors.email} className="mt-2" />
+                    <InputError message={errors.email} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
@@ -120,7 +88,7 @@ export default function Login({ status, canResetPassword }) {
                         onChange={onHandleChange}
                     />
 
-                    <InputError message={getFieldValidationError(errors, 'password') || errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="mt-2" />
                 </div>
 
                 <div className="block mt-4">
@@ -144,7 +112,7 @@ export default function Login({ status, canResetPassword }) {
                         </Link>
                     )}
 
-                    <PrimaryButton className="ms-4" disabled={processing || rateLimit > 0}>
+                    <PrimaryButton className="ms-4" disabled={processing}>
                         {processing ? 'Logging in...' : 'Log in'}
                     </PrimaryButton>
                 </div>

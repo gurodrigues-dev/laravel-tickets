@@ -55,6 +55,18 @@ class LoginRequest extends FormRequest
         return true;
     }
 
+    public function getCredentials(): array
+    {
+        $this->ensureIsNotRateLimited();
+
+        $credentials = [
+            'email' => $this->input('email'),
+            'password' => $this->input('password'),
+        ];
+
+        return $credentials;
+    }
+
     /**
      * Ensure the login request is not rate limited.
      *

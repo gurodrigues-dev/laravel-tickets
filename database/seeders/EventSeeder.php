@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Event;
+use Illuminate\Database\Seeder;
 
 class EventSeeder extends Seeder
 {
@@ -17,6 +17,7 @@ class EventSeeder extends Seeder
                 'total_tickets' => 200,
                 'available_tickets' => 200,
                 'version' => 1,
+                'max_tickets_per_user' => 5,
             ],
             [
                 'name' => 'Carnival',
@@ -25,6 +26,7 @@ class EventSeeder extends Seeder
                 'total_tickets' => 5,
                 'available_tickets' => 5,
                 'version' => 1,
+                'max_tickets_per_user' => 5,
             ],
             [
                 'name' => 'Swiss Yodelling Festival',
@@ -33,6 +35,7 @@ class EventSeeder extends Seeder
                 'total_tickets' => 1,
                 'available_tickets' => 1,
                 'version' => 1,
+                'max_tickets_per_user' => 5,
             ],
             [
                 'name' => 'Tanabata Matsuri',
@@ -41,6 +44,7 @@ class EventSeeder extends Seeder
                 'total_tickets' => 10,
                 'available_tickets' => 10,
                 'version' => 1,
+                'max_tickets_per_user' => 5,
             ],
             [
                 'name' => 'Sechseläuten',
@@ -49,6 +53,7 @@ class EventSeeder extends Seeder
                 'total_tickets' => 0,
                 'available_tickets' => 0,
                 'version' => 1,
+                'max_tickets_per_user' => 5,
             ],
         ];
 

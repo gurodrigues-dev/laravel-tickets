@@ -14,7 +14,8 @@ interface ReservationServiceInterface
     public function updateReservation(
         int $reservationId,
         int $quantity,
-        int $version
+        int $version,
+        int $userId
     );
 
     public function cancelReservation(int $reservationId);

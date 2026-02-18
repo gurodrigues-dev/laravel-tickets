@@ -4,29 +4,26 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, router } from '@inertiajs/react';
-import { logout } from '@/utils/auth';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    const handleLogout = async (e) => {
+    const handleLogout = (e) => {
         e.preventDefault();
         setIsLoggingOut(true);
 
-        const result = await logout();
-
-        if (result.success) {
-            // Redirect to login page after successful logout
-            router.visit(route('login'), {
-                method: 'get',
-            });
-        } else {
-            setIsLoggingOut(false);
-            // Show error message (could use a toast notification here)
-            console.error('Logout failed:', result.error);
-            alert('Failed to logout. Please try again.');
-        }
+        router.post('/logout', {}, {
+            onFinish: () => {
+                setIsLoggingOut(false);
+            },
+            onSuccess: () => {
+            },
+            onError: (errors) => {
+                console.error('Logout failed:', errors);
+                alert('Failed to logout. Please try again.');
+            }
+        });
     };
 
     return (
@@ -42,9 +39,6 @@ export default function Authenticated({ user, header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
-                                </NavLink>
                                 <NavLink href={route('events.index')} active={route().current('events.index')}>
                                     Events
                                 </NavLink>
@@ -117,11 +111,8 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 </div>
 
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
+                    <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
-                        </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('events.index')} active={route().current('events.index')}>
                             Events
                         </ResponsiveNavLink>

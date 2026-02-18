@@ -5,7 +5,6 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, router } from '@inertiajs/react';
-import { register, login, getFieldValidationError } from '@/utils/auth';
 
 export default function Register() {
     const [data, setData] = useState({
@@ -16,7 +15,6 @@ export default function Register() {
     });
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState({});
-    const [apiError, setApiError] = useState('');
 
     useEffect(() => {
         return () => {
@@ -28,43 +26,18 @@ export default function Register() {
         };
     }, []);
 
-    const submit = async (e) => {
+    const submit = (e) => {
         e.preventDefault();
         setProcessing(true);
-        setApiError('');
-        setErrors({});
 
-        // First register the user
-        const registerResult = await register(data);
-
-        if (!registerResult.success) {
-            setProcessing(false);
-
-            if (registerResult.validationErrors) {
-                setErrors(registerResult.validationErrors);
-            } else {
-                setApiError(registerResult.error);
+        router.post('/register', data, {
+            onFinish: () => setProcessing(false),
+            onError: (errors) => {
+                setErrors(errors);
+            },
+            onSuccess: () => {
             }
-            return;
-        }
-
-        // After successful registration, attempt auto-login
-        const loginResult = await login(data.email, data.password);
-
-        setProcessing(false);
-
-        if (loginResult.success) {
-            // Redirect to dashboard on successful login
-            router.visit(route('dashboard'), {
-                method: 'get',
-            });
-        } else {
-            // Registration succeeded but auto-login failed, redirect to login page
-            router.visit(route('login'), {
-                method: 'get',
-                data: { registered: true, email: data.email }
-            });
-        }
+        });
     };
 
     const onHandleChange = (event) => {
@@ -87,12 +60,6 @@ export default function Register() {
             <Head title="Register" />
 
             <form onSubmit={submit}>
-                {apiError && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                        <p className="text-sm text-red-600">{apiError}</p>
-                    </div>
-                )}
-
                 <div>
                     <InputLabel htmlFor="name" value="Name" />
 
@@ -107,7 +74,7 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={getFieldValidationError(errors, 'name') || errors.name} className="mt-2" />
+                    <InputError message={errors.name} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
@@ -124,7 +91,7 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={getFieldValidationError(errors, 'email') || errors.email} className="mt-2" />
+                    <InputError message={errors.email} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
@@ -141,7 +108,7 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={getFieldValidationError(errors, 'password') || errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
@@ -158,7 +125,7 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={getFieldValidationError(errors, 'password_confirmation') || errors.password_confirmation} className="mt-2" />
+                    <InputError message={errors.password_confirmation} className="mt-2" />
                 </div>
 
                 <div className="flex items-center justify-end mt-4">

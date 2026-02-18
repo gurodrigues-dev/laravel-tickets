@@ -6,6 +6,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
 import axios from 'axios';
+import { getErrorMessage } from '@/utils/errorHandler';
+import Spinner, { ButtonSpinner } from '@/Components/Spinner';
 
 export default function Index({ auth }) {
     const [reservations, setReservations] = useState([]);
@@ -13,27 +15,23 @@ export default function Index({ auth }) {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
 
-    // Update quantity modal state
     const [updateModalOpen, setUpdateModalOpen] = useState(false);
     const [selectedReservation, setSelectedReservation] = useState(null);
     const [newQuantity, setNewQuantity] = useState('');
     const [updateLoading, setUpdateLoading] = useState(false);
     const [updateError, setUpdateError] = useState('');
 
-    // Cancel confirmation modal state
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [cancelLoading, setCancelLoading] = useState(false);
 
-    // Fetch reservations
     const fetchReservations = async () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get('/api/my-reservations');
+            const response = await axios.get('/api/reservations/my-reservations');
             setReservations(response.data);
         } catch (err) {
-            setError('Failed to load reservations. Please try again.');
-            console.error('Error fetching reservations:', err);
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -43,7 +41,6 @@ export default function Index({ auth }) {
         fetchReservations();
     }, []);
 
-    // Open update quantity modal
     const openUpdateModal = (reservation) => {
         setSelectedReservation(reservation);
         setNewQuantity(reservation.quantity.toString());
@@ -51,15 +48,14 @@ export default function Index({ auth }) {
         setUpdateModalOpen(true);
     };
 
-    // Handle quantity update
     const handleUpdateQuantity = async (e) => {
         e.preventDefault();
         setUpdateError('');
         setUpdateLoading(true);
 
         const quantity = parseInt(newQuantity);
+        const maxTicketsPerUser = selectedReservation.event.max_tickets_per_user || 5;
 
-        // Validation
         if (isNaN(quantity) || quantity <= 0) {
             setUpdateError('Please enter a valid positive number.');
             setUpdateLoading(false);
@@ -68,6 +64,24 @@ export default function Index({ auth }) {
 
         if (quantity > selectedReservation.event.available_tickets) {
             setUpdateError(`Only ${selectedReservation.event.available_tickets} tickets available.`);
+            setUpdateLoading(false);
+            return;
+        }
+
+        if (quantity > maxTicketsPerUser) {
+            setUpdateError(`Maximum ${maxTicketsPerUser} tickets per user.`);
+            setUpdateLoading(false);
+            return;
+        }
+
+        const otherReservationsForEvent = reservations.filter(
+            r => r.event_id === selectedReservation.event.id && r.id !== selectedReservation.id && r.status !== 'cancelled'
+        );
+        const otherTicketsCount = otherReservationsForEvent.reduce((sum, r) => sum + r.quantity, 0);
+        const totalTickets = quantity + otherTicketsCount;
+
+        if (totalTickets > maxTicketsPerUser) {
+            setUpdateError(`You already have ${otherTicketsCount} ticket(s) for this event. Maximum ${maxTicketsPerUser} tickets per user allowed.`);
             setUpdateLoading(false);
             return;
         }
@@ -82,28 +96,19 @@ export default function Index({ auth }) {
             setUpdateModalOpen(false);
             fetchReservations();
 
-            // Clear success message after 3 seconds
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
-            if (err.response?.data?.error) {
-                setUpdateError(err.response.data.error);
-            } else if (err.response?.data?.message) {
-                setUpdateError(err.response.data.message);
-            } else {
-                setUpdateError('Failed to update reservation. Please try again.');
-            }
+            setUpdateError(getErrorMessage(err));
         } finally {
             setUpdateLoading(false);
         }
     };
 
-    // Open cancel confirmation modal
     const openCancelModal = (reservation) => {
         setSelectedReservation(reservation);
         setCancelModalOpen(true);
     };
 
-    // Handle cancel reservation
     const handleCancelReservation = async () => {
         setCancelLoading(true);
 
@@ -113,17 +118,14 @@ export default function Index({ auth }) {
             setCancelModalOpen(false);
             fetchReservations();
 
-            // Clear success message after 3 seconds
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
-            setError('Failed to cancel reservation. Please try again.');
-            console.error('Error cancelling reservation:', err);
+            setError(getErrorMessage(err));
         } finally {
             setCancelLoading(false);
         }
     };
 
-    // Format date for display
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -135,7 +137,6 @@ export default function Index({ auth }) {
         });
     };
 
-    // Get status badge classes
     const getStatusClasses = (status) => {
         switch (status.toLowerCase()) {
             case 'confirmed':
@@ -148,6 +149,18 @@ export default function Index({ auth }) {
                 return 'bg-gray-100 text-gray-800';
         }
     };
+
+    const updateModalValues = selectedReservation ? (() => {
+        const maxTicketsPerUser = selectedReservation.event.max_tickets_per_user || 5;
+        const otherReservationsForEvent = reservations.filter(
+            r => r.event_id === selectedReservation.event.id && r.id !== selectedReservation.id && r.status !== 'cancelled'
+        );
+        const otherTicketsCount = otherReservationsForEvent.reduce((sum, r) => sum + r.quantity, 0);
+        const maxAllowedForCurrent = maxTicketsPerUser - otherTicketsCount;
+        const maxInputValue = Math.min(selectedReservation.event.available_tickets, maxAllowedForCurrent);
+
+        return { maxTicketsPerUser, otherTicketsCount, maxAllowedForCurrent, maxInputValue };
+    })() : null;
 
     return (
         <AuthenticatedLayout
@@ -169,16 +182,18 @@ export default function Index({ auth }) {
 
                             {/* Error Message */}
                             {error && (
-                                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-md">
-                                    {error}
+                                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-md flex items-start">
+                                    <svg className="h-5 w-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>{error}</span>
                                 </div>
                             )}
 
                             {/* Loading State */}
                             {loading ? (
                                 <div className="text-center py-12">
-                                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-300 border-t-gray-800"></div>
-                                    <p className="mt-4 text-gray-600">Loading reservations...</p>
+                                    <Spinner size="lg" text="Loading reservations..." />
                                 </div>
                             ) : reservations.length === 0 ? (
                                 /* Empty State */
@@ -259,17 +274,17 @@ export default function Index({ auth }) {
                                                     <div className="flex gap-2">
                                                         <PrimaryButton
                                                             onClick={() => openUpdateModal(reservation)}
-                                                            className="text-xs"
+                                                            className="text-xs min-h-[44px]"
                                                         >
                                                             Update Quantity
                                                         </PrimaryButton>
-                                                        <DangerButton
-                                                            onClick={() => openCancelModal(reservation)}
-                                                            className="text-xs"
-                                                        >
-                                                            Cancel
-                                                        </DangerButton>
-                                                    </div>
+                                                         <DangerButton
+                                                             onClick={() => openCancelModal(reservation)}
+                                                             className="text-xs min-h-[44px]"
+                                                         >
+                                                             Cancel
+                                                         </DangerButton>
+                                                     </div>
                                                 )}
                                             </div>
                                         </div>
@@ -292,38 +307,61 @@ export default function Index({ auth }) {
                         Available tickets: {selectedReservation?.event.available_tickets}
                     </p>
 
-                    <form onSubmit={handleUpdateQuantity} className="mt-6">
-                        <div>
-                            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
-                                Number of Tickets
-                            </label>
-                            <input
-                                id="quantity"
-                                type="number"
-                                min="1"
-                                max={selectedReservation?.event.available_tickets || 999}
-                                value={newQuantity}
-                                onChange={(e) => setNewQuantity(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            />
-                            {updateError && (
-                                <p className="mt-2 text-sm text-red-600">{updateError}</p>
-                            )}
-                        </div>
+                    {updateModalValues && (
+                        <form onSubmit={handleUpdateQuantity} className="mt-6">
+                            <div>
+                                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+                                    Number of Tickets
+                                </label>
+                                <input
+                                    id="quantity"
+                                    type="number"
+                                    min="1"
+                                    max={updateModalValues.maxInputValue}
+                                    value={newQuantity}
+                                    onChange={(e) => setNewQuantity(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                                />
+                                <div className="mt-2 space-y-1">
+                                    <p className="text-xs text-gray-500">
+                                        Maximum {updateModalValues.maxTicketsPerUser} tickets per user
+                                    </p>
+                                    {updateModalValues.otherTicketsCount > 0 && (
+                                        <p className="text-xs text-gray-500">
+                                            You have {updateModalValues.otherTicketsCount} other ticket(s) for this event
+                                        </p>
+                                    )}
+                                    <p className="text-xs text-gray-500">
+                                        You can add up to {updateModalValues.maxAllowedForCurrent} more ticket(s)
+                                    </p>
+                                </div>
+                                {updateError && (
+                                    <p className="mt-2 text-sm text-red-600">{updateError}</p>
+                                )}
+                            </div>
 
-                        <div className="mt-6 flex justify-end gap-2">
-                            <SecondaryButton
-                                type="button"
-                                onClick={() => setUpdateModalOpen(false)}
-                                disabled={updateLoading}
-                            >
-                                Cancel
-                            </SecondaryButton>
-                            <PrimaryButton type="submit" disabled={updateLoading}>
-                                {updateLoading ? 'Updating...' : 'Update'}
-                            </PrimaryButton>
-                        </div>
-                    </form>
+                            <div className="mt-6 flex justify-end gap-2">
+                                <SecondaryButton
+                                    type="button"
+                                    onClick={() => setUpdateModalOpen(false)}
+                                    disabled={updateLoading}
+                                    className="min-h-[44px]"
+                                >
+                                    Cancel
+                                </SecondaryButton>
+                                <PrimaryButton type="submit" disabled={updateLoading} className="min-h-[44px]">
+                                    {updateLoading ? (
+                                        <span className="flex items-center gap-2">
+                                            <ButtonSpinner />
+                                            Updating...
+                                        </span>
+                                    ) : (
+                                        'Update'
+                                    )}
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    )}
                 </div>
             </Modal>
 
@@ -344,11 +382,19 @@ export default function Index({ auth }) {
                             type="button"
                             onClick={() => setCancelModalOpen(false)}
                             disabled={cancelLoading}
+                            className="min-h-[44px]"
                         >
                             Keep Reservation
                         </SecondaryButton>
-                        <DangerButton onClick={handleCancelReservation} disabled={cancelLoading}>
-                            {cancelLoading ? 'Cancelling...' : 'Cancel Reservation'}
+                        <DangerButton onClick={handleCancelReservation} disabled={cancelLoading} className="min-h-[44px]">
+                            {cancelLoading ? (
+                                <span className="flex items-center gap-2">
+                                    <ButtonSpinner />
+                                    Cancelling...
+                                </span>
+                            ) : (
+                                'Cancel Reservation'
+                            )}
                         </DangerButton>
                     </div>
                 </div>

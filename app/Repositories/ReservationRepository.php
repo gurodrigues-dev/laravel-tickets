@@ -19,6 +19,14 @@ class ReservationRepository implements ReservationRepositoryInterface
             ->get();
     }
 
+    public function findByUserAndEvent(int $userId, int $eventId)
+    {
+        return Reservation::where('user_id', $userId)
+            ->where('event_id', $eventId)
+            ->where('status', 'active')
+            ->get();
+    }
+
     public function create(array $data): Reservation
     {
         return Reservation::create($data);

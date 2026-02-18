@@ -25,26 +25,10 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\ReservationController;
-
-// API routes for data
-Route::middleware(['auth'])->group(function () {
-    Route::get('/api/events', [EventController::class, 'index']);
-    Route::post('/api/reservations', [ReservationController::class, 'store']);
-    Route::get('/api/my-reservations', [ReservationController::class, 'myReservations']);
-    Route::put('/api/reservations/{id}', [ReservationController::class, 'update']);
-    Route::delete('/api/reservations/{id}', [ReservationController::class, 'destroy']);
 });
 
 // Inertia page routes

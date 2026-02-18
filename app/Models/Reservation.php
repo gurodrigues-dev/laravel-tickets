@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use Database\Factories\ReservationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): ReservationFactory
+    {
+        return ReservationFactory::new();
+    }
 
     protected $fillable = [
         'event_id',

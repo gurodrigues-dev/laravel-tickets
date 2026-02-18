@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Services\Contracts\EventServiceInterface;
+use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
@@ -27,7 +28,7 @@ class EventController extends Controller
             'name' => 'required',
             'description' => 'required',
             'event_date' => 'required|date',
-            'total_tickets' => 'required|integer|min:1'
+            'total_tickets' => 'required|integer|min:1',
         ]);
 
         return response()->json(

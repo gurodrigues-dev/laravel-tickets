@@ -10,6 +10,8 @@ interface ReservationRepositoryInterface
 
     public function findByUser(int $userId);
 
+    public function findByUserAndEvent(int $userId, int $eventId);
+
     public function create(array $data): Reservation;
 
     public function update(Reservation $reservation, array $data): bool;
