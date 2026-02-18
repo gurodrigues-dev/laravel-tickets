@@ -6,7 +6,6 @@ const defaultTheme = 'light';
 
 export function ThemeProvider({ children }) {
     const [theme, setTheme] = useState(() => {
-        // Initialize from localStorage or default to 'light'
         if (typeof window !== 'undefined') {
             const storedTheme = localStorage.getItem('theme');
             return storedTheme || defaultTheme;

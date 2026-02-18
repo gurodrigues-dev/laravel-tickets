@@ -1,9 +1,5 @@
 import axios from 'axios';
 
-/**
- * Authentication utility functions for API-based authentication
- * Uses Sanctum's cookie-based sessions (stateful mode)
- */
 
 /**
  * Authenticate user with email and password

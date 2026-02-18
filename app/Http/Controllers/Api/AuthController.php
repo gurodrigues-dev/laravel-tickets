@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginRequest;
-use App\Services\Contracts\AuthServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -30,10 +29,6 @@ use Illuminate\Http\Request;
  */
 class AuthController extends Controller
 {
-    public function __construct(
-        private AuthServiceInterface $authService
-    ) {}
-
     /**
      * @OA\Post(
      *     path="/api/v1/auth/login",
