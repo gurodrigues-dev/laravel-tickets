@@ -1,0 +1,23 @@
+### API v1 - Events Tests
+### Base URL: http://localhost:8000
+
+### 1. Get All Events
+GET http://localhost:8000/api/v1/events
+Authorization: Bearer {{token}}
+
+### 2. Create New Event (Admin)
+POST http://localhost:8000/api/v1/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Tech Conference 2024",
+  "description": "Annual technology conference",
+  "event_date": "2024-12-15T10:00:00",
+  "total_tickets": 500,
+  "max_tickets_per_user": 5
+}
+
+### 3. Get Events with Filters
+GET http://localhost:8000/api/v1/events?status=upcoming
+Authorization: Bearer {{token}}
