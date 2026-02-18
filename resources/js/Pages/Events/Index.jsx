@@ -135,13 +135,13 @@ export default function Index({ auth }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Events</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">Events</h2>}
         >
             <Head title="Events" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6">
                             {/* Filter Button and Collapsible Panel */}
                             {!loading && (
@@ -180,9 +180,9 @@ export default function Index({ auth }) {
                                             isFilterPanelOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
                                         }`}
                                     >
-                                        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                                                <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
                                                     <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                                                     </svg>
@@ -204,7 +204,7 @@ export default function Index({ auth }) {
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {/* Search by Name */}
                                                 <div className="lg:col-span-3">
-                                                    <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+                                                    <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                         Search Events
                                                     </label>
                                                     <div className="relative">
@@ -214,9 +214,9 @@ export default function Index({ auth }) {
                                                             placeholder="Search by event name..."
                                                             value={searchQuery}
                                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 sm:text-sm"
                                                         />
-                                                        <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                                         </svg>
                                                     </div>
@@ -224,14 +224,14 @@ export default function Index({ auth }) {
 
                                                 {/* Sort By */}
                                                 <div>
-                                                    <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
+                                                    <label htmlFor="sort" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                         Sort By
                                                     </label>
                                                     <select
                                                         id="sort"
                                                         value={sortBy}
                                                         onChange={(e) => setSortBy(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 sm:text-sm"
                                                     >
                                                         <option value="date-asc">Date: Oldest First</option>
                                                         <option value="date-desc">Date: Newest First</option>
@@ -242,7 +242,7 @@ export default function Index({ auth }) {
 
                                                 {/* Date Range - Start */}
                                                 <div>
-                                                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
+                                                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                         Start Date
                                                     </label>
                                                     <input
@@ -250,13 +250,13 @@ export default function Index({ auth }) {
                                                         type="date"
                                                         value={startDate}
                                                         onChange={(e) => setStartDate(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 sm:text-sm"
                                                     />
                                                 </div>
 
                                                 {/* Date Range - End */}
                                                 <div>
-                                                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
+                                                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                         End Date
                                                     </label>
                                                     <input
@@ -264,7 +264,7 @@ export default function Index({ auth }) {
                                                         type="date"
                                                         value={endDate}
                                                         onChange={(e) => setEndDate(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 sm:text-sm"
                                                     />
                                                 </div>
 
@@ -275,9 +275,9 @@ export default function Index({ auth }) {
                                                             type="checkbox"
                                                             checked={showOnlyUpcoming}
                                                             onChange={(e) => setShowOnlyUpcoming(e.target.checked)}
-                                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-indigo-600 dark:text-indigo-500 focus:ring-indigo-500 dark:focus:ring-indigo-400 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded"
                                                         />
-                                                        <span className="ml-2 text-sm text-gray-700 flex items-center gap-1">
+                                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1">
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                             </svg>
@@ -293,9 +293,9 @@ export default function Index({ auth }) {
                                                             type="checkbox"
                                                             checked={includePastEvents}
                                                             onChange={(e) => setIncludePastEvents(e.target.checked)}
-                                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-indigo-600 dark:text-indigo-500 focus:ring-indigo-500 dark:focus:ring-indigo-400 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded"
                                                         />
-                                                        <span className="ml-2 text-sm text-gray-700 flex items-center gap-1">
+                                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1">
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                             </svg>
@@ -326,13 +326,13 @@ export default function Index({ auth }) {
                                         Try Again
                                     </button>
                                 </div>
-                            ) : filteredEvents.length === 0 ? (
+                             ) : filteredEvents.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <h3 className="mt-2 text-sm font-medium text-gray-900">No events found</h3>
-                                    <p className="mt-1 text-sm text-gray-500">
+                                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No events found</h3>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                         {hasActiveFilters ? 'Try adjusting your filters or search.' : 'No events available at the moment.'}
                                     </p>
                                     {hasActiveFilters && (
@@ -345,57 +345,57 @@ export default function Index({ auth }) {
                                     )}
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                     {filteredEvents.map((event) => {
-                                         const isPast = isEventPast(event.event_date);
-                                         return (
-                                             <div key={event.id} className={`border rounded-lg overflow-hidden transition-shadow ${isPast ? 'border-gray-200 bg-gray-50' : 'border-gray-200 hover:shadow-lg'}`}>
-                                                 <div className="p-6">
-                                                     <h3 className={`text-xl font-semibold mb-2 ${isPast ? 'text-gray-500' : 'text-gray-900'}`}>
-                                                         {event.name}
-                                                     </h3>
-                                                     {event.description && (
-                                                         <p className={`mb-4 line-clamp-3 ${isPast ? 'text-gray-400' : 'text-gray-600'}`}>
-                                                             {event.description}
-                                                         </p>
-                                                     )}
-                                                     <div className="space-y-2 mb-4">
-                                                         {event.event_date && (
-                                                             <div className="flex items-center text-sm text-gray-500">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                      {filteredEvents.map((event) => {
+                                          const isPast = isEventPast(event.event_date);
+                                          return (
+                                              <div key={event.id} className={`border rounded-lg overflow-hidden transition-shadow ${isPast ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-lg'}`}>
+                                                  <div className="p-6">
+                                                      <h3 className={`text-xl font-semibold mb-2 ${isPast ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                                                          {event.name}
+                                                      </h3>
+                                                      {event.description && (
+                                                          <p className={`mb-4 line-clamp-3 ${isPast ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'}`}>
+                                                              {event.description}
+                                                          </p>
+                                                      )}
+                                                      <div className="space-y-2 mb-4">
+                                                          {event.event_date && (
+                                                              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                                                                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                  </svg>
                                                                  {new Date(event.event_date).toLocaleDateString()}
-                                                                 {isPast && (
-                                                                     <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                                                         Event ended
-                                                                     </span>
-                                                                 )}
-                                                             </div>
-                                                         )}
-                                                          <div className="flex items-center text-sm">
-                                                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                                                              </svg>
-                                                              <span className={`font-medium ${event.available_tickets > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                                  {event.available_tickets} available
-                                                              </span>
-                                                              {event.total_tickets != null ? (
-                                                                  <span className="text-gray-500"> / {event.total_tickets}</span>
-                                                              ) : null}
-                                                          </div>
+                                                                  {isPast && (
+                                                                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
+                                                                          Event ended
+                                                                      </span>
+                                                                  )}
+                                                              </div>
+                                                          )}
+                                                           <div className="flex items-center text-sm">
+                                                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                                               </svg>
+                                                               <span className={`font-medium ${event.available_tickets > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                                   {event.available_tickets} available
+                                                               </span>
+                                                               {event.total_tickets != null ? (
+                                                                   <span className="text-gray-500 dark:text-gray-400"> / {event.total_tickets}</span>
+                                                               ) : null}
+                                                           </div>
                                                      </div>
-                                                       <button
-                                                           onClick={() => handleBookTickets(event)}
-                                                           disabled={event.available_tickets === 0 || isPast}
-                                                           className={`w-full px-4 py-3 text-sm md:text-base font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 min-h-[44px] flex items-center justify-center gap-2 ${
-                                                               isPast
-                                                                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                                   : event.available_tickets === 0
-                                                                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                                       : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-                                                           }`}
-                                                       >
+                                                        <button
+                                                            onClick={() => handleBookTickets(event)}
+                                                            disabled={event.available_tickets === 0 || isPast}
+                                                            className={`w-full px-4 py-3 text-sm md:text-base font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 min-h-[44px] flex items-center justify-center gap-2 ${
+                                                                isPast
+                                                                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                                    : event.available_tickets === 0
+                                                                        ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                                        : 'bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500'
+                                                            }`}
+                                                        >
                                                            {isPast ? (
                                                                <>
                                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

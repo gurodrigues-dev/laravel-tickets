@@ -41,14 +41,14 @@ export default function Spinner({
                 aria-label={text || 'Loading'}
             />
             {text && (
-                <span className={`ml-2 ${textSizeClasses[size]} text-gray-600`}>{text}</span>
+                <span className={`ml-2 ${textSizeClasses[size]} text-gray-600 dark:text-gray-400`}>{text}</span>
             )}
         </>
     );
 
     if (overlay) {
         return (
-            <div className="flex items-center justify-center inset-0 bg-white/50 backdrop-blur-sm z-10 absolute">
+            <div className="flex items-center justify-center inset-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm z-10 absolute">
                 {spinner}
             </div>
         );
@@ -63,7 +63,7 @@ export default function Spinner({
 
 export function FullPageSpinner({ text = 'Loading...' }) {
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-50">
             <div className="text-center">
                 <Spinner size="xl" text={text} />
             </div>
