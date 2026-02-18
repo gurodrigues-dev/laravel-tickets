@@ -49,7 +49,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 2,
             'version' => $this->event->version,
         ]);
@@ -85,7 +85,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 0,
             'version' => $this->event->version,
         ]);
@@ -111,7 +111,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => -1,
             'version' => $this->event->version,
         ]);
@@ -135,7 +135,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 2,
             'version' => $this->event->version,
         ]);
@@ -163,7 +163,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 5,
             'version' => $this->event->version,
         ]);
@@ -196,7 +196,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 5,
             'version' => $this->event->version,
         ]);
@@ -223,7 +223,7 @@ class ReservationUpdateTest extends TestCase
             'version' => 5,
         ]);
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 3,
             'version' => 1,
         ]);
@@ -247,7 +247,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'version' => $this->event->version,
         ]);
 
@@ -268,7 +268,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 3,
         ]);
 
@@ -293,7 +293,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$reservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$reservation->id, [
             'quantity' => 6,
             'version' => $this->event->version,
         ]);
@@ -328,7 +328,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$secondReservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$secondReservation->id, [
             'quantity' => 3,
             'version' => $this->event->version,
         ]);
@@ -363,7 +363,7 @@ class ReservationUpdateTest extends TestCase
 
         $this->event->refresh();
 
-        $response = $this->putJson('/api/reservations/'.$secondReservation->id, [
+        $response = $this->putJson('/api/v1/reservations/'.$secondReservation->id, [
             'quantity' => 3,
             'version' => $this->event->version,
         ]);

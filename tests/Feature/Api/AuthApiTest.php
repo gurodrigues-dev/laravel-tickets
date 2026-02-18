@@ -23,7 +23,7 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -46,7 +46,7 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'wrong@example.com',
             'password' => 'password123',
         ]);
@@ -66,7 +66,7 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'wrong-password',
         ]);
@@ -83,7 +83,7 @@ class AuthApiTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'password' => 'password',
         ]);
 
@@ -95,7 +95,7 @@ class AuthApiTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
         ]);
 
@@ -105,7 +105,7 @@ class AuthApiTest extends TestCase
 
     public function test_user_cannot_login_with_missing_both_fields(): void
     {
-        $response = $this->postJson('/api/login', []);
+        $response = $this->postJson('/api/v1/auth/login', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['email', 'password']);
@@ -113,7 +113,7 @@ class AuthApiTest extends TestCase
 
     public function test_user_cannot_login_with_invalid_email_format(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'not-an-email',
             'password' => 'password123',
         ]);
@@ -131,7 +131,7 @@ class AuthApiTest extends TestCase
 
         $sessionId = null;
 
-        $this->postJson('/api/login', [
+        $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ])->withCookie('laravel_session', $sessionId);
@@ -149,7 +149,7 @@ class AuthApiTest extends TestCase
 
         $oldSessionId = Session::getId();
 
-        $this->postJson('/api/login', [
+        $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -170,7 +170,7 @@ class AuthApiTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->postJson('/api/logout');
+            ->postJson('/api/v1/auth/logout');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -182,7 +182,7 @@ class AuthApiTest extends TestCase
 
     public function test_unauthenticated_user_cannot_logout(): void
     {
-        $response = $this->postJson('/api/logout');
+        $response = $this->postJson('/api/v1/auth/logout');
 
         $response->assertStatus(401);
     }
@@ -192,13 +192,13 @@ class AuthApiTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->postJson('/api/logout');
+            ->postJson('/api/v1/auth/logout');
 
         // After logout, user should be guest
         $this->assertGuest();
 
         // Attempting to access protected route should fail
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
     }
@@ -210,7 +210,7 @@ class AuthApiTest extends TestCase
         $oldToken = csrf_token();
 
         $this->actingAs($user)
-            ->postJson('/api/logout');
+            ->postJson('/api/v1/auth/logout');
 
         // The route calls $request->session()->regenerateToken()
         $this->assertGuest();
@@ -222,16 +222,16 @@ class AuthApiTest extends TestCase
 
         // First, authenticate and access protected route
         $response = $this->actingAs($user)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/auth/user');
 
         $response->assertStatus(200);
 
         // Then logout
         $this->actingAs($user)
-            ->postJson('/api/logout');
+            ->postJson('/api/v1/auth/logout');
 
         // Now try to access protected route again - should fail
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
     }
@@ -247,7 +247,7 @@ class AuthApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/auth/user');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -271,7 +271,7 @@ class AuthApiTest extends TestCase
 
     public function test_get_current_user_requires_authentication(): void
     {
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
     }
@@ -284,7 +284,7 @@ class AuthApiTest extends TestCase
         ]);
 
         $userData = $this->actingAs($user)
-            ->getJson('/api/user')
+            ->getJson('/api/v1/auth/user')
             ->json();
 
         $this->assertEquals($user->id, $userData['id']);
@@ -303,14 +303,14 @@ class AuthApiTest extends TestCase
         $user2 = User::factory()->create(['email' => 'user2@example.com']);
 
         $response1 = $this->actingAs($user1)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/auth/user');
 
         $response1->assertJson([
             'email' => 'user1@example.com',
         ]);
 
         $response2 = $this->actingAs($user2)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/auth/user');
 
         $response2->assertJson([
             'email' => 'user2@example.com',
@@ -322,7 +322,7 @@ class AuthApiTest extends TestCase
      */
     public function test_user_can_register_with_valid_data(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -350,7 +350,7 @@ class AuthApiTest extends TestCase
             'email' => 'existing@example.com',
         ]);
 
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'Test User',
             'email' => 'existing@example.com',
             'password' => 'password123',
@@ -362,7 +362,7 @@ class AuthApiTest extends TestCase
 
     public function test_user_cannot_register_with_short_password(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => '123',
@@ -377,7 +377,7 @@ class AuthApiTest extends TestCase
      */
     public function test_cors_headers_are_present_for_api_routes(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -389,7 +389,7 @@ class AuthApiTest extends TestCase
 
     public function test_password_is_hashed_in_database(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -406,7 +406,7 @@ class AuthApiTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/auth/user');
 
         $jsonData = $response->json();
 
@@ -416,7 +416,7 @@ class AuthApiTest extends TestCase
 
     public function test_sql_injection_attempt_fails(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => "admin' --",
             'password' => 'password123',
         ]);
@@ -428,7 +428,7 @@ class AuthApiTest extends TestCase
 
     public function test_login_with_malicious_characters_in_email(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => "<script>alert('xss')</script>@example.com",
             'password' => 'password123',
         ]);
@@ -439,7 +439,7 @@ class AuthApiTest extends TestCase
 
     public function test_login_with_very_long_email_fails_validation(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => str_repeat('a', 300).'@example.com',
             'password' => 'password123',
         ]);
@@ -460,14 +460,14 @@ class AuthApiTest extends TestCase
 
         // Make 5 failed login attempts
         for ($i = 0; $i < 5; $i++) {
-            $this->postJson('/api/login', [
+            $this->postJson('/api/v1/auth/login', [
                 'email' => 'test@example.com',
                 'password' => 'wrong-password',
             ])->assertStatus(401);
         }
 
         // Now try with correct password - should still work
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -484,7 +484,7 @@ class AuthApiTest extends TestCase
         ]);
 
         // First login
-        $response1 = $this->postJson('/api/login', [
+        $response1 = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -492,7 +492,7 @@ class AuthApiTest extends TestCase
         $response1->assertStatus(200);
 
         // Second login (simulating another request)
-        $response2 = $this->postJson('/api/login', [
+        $response2 = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -539,7 +539,7 @@ class AuthApiTest extends TestCase
         ]);
 
         // Laravel's default authentication is case-insensitive for email
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'TEST@EXAMPLE.COM',
             'password' => 'password123',
         ]);
@@ -556,7 +556,7 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => ' test@example.com ',
             'password' => 'password123',
         ]);
@@ -577,7 +577,7 @@ class AuthApiTest extends TestCase
 
         // User should still be able to access current user endpoint
         $response = $this->actingAs($user)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/auth/user');
 
         $response->assertStatus(200);
     }
@@ -595,7 +595,7 @@ class AuthApiTest extends TestCase
         $response = $this->withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-        ])->postJson('/api/login', [
+        ])->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -611,7 +611,7 @@ class AuthApiTest extends TestCase
         // Test with Accept header
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->getJson('/api/user');
+        ])->getJson('/api/v1/auth/user');
 
         // Returns 401 but with JSON content type
         $response->assertHeader('content-type', 'application/json');
@@ -622,7 +622,7 @@ class AuthApiTest extends TestCase
         // Send invalid JSON
         $response = $this->withHeaders([
             'Content-Type' => 'application/json',
-        ])->post('/api/login', 'invalid json');
+        ])->post('/api/v1/auth/login', 'invalid json');
 
         $response->assertStatus(400);
     }
@@ -634,21 +634,21 @@ class AuthApiTest extends TestCase
     {
         // Sanctum's EnsureFrontendRequestsAreStateful middleware
         // should be applied to all API routes
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
     }
 
     public function test_auth_middleware_protects_logout(): void
     {
-        $response = $this->postJson('/api/logout');
+        $response = $this->postJson('/api/v1/auth/logout');
 
         $response->assertStatus(401);
     }
 
     public function test_auth_middleware_protects_user_endpoint(): void
     {
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
     }

@@ -14,7 +14,7 @@ import axios from 'axios';
  */
 export async function login(email, password, remember = false) {
     try {
-        const response = await axios.post('/api/auth/login', {
+        const response = await axios.post('/api/v1/auth/login', {
             email,
             password,
             remember
@@ -38,7 +38,7 @@ export async function login(email, password, remember = false) {
  */
 export async function register(userData) {
     try {
-        const response = await axios.post('/api/register', userData, {
+        const response = await axios.post('/api/v1/register', userData, {
             withCredentials: true
         });
 
@@ -57,7 +57,7 @@ export async function register(userData) {
  */
 export async function logout() {
     try {
-        const response = await axios.post('/api/auth/logout', {}, {
+        const response = await axios.post('/api/v1/auth/logout', {}, {
             withCredentials: true
         });
 
@@ -76,7 +76,7 @@ export async function logout() {
  */
 export async function getCurrentUser() {
     try {
-        const response = await axios.get('/api/auth/user', {
+        const response = await axios.get('/api/v1/auth/user', {
             withCredentials: true
         });
 

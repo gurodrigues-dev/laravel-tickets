@@ -36,7 +36,7 @@ class ReservationCreateTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => $this->event->id,
             'quantity' => 3,
             'version' => $this->event->version,
@@ -68,7 +68,7 @@ class ReservationCreateTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => $this->event->id,
             'quantity' => 6,
             'version' => $this->event->version,
@@ -94,7 +94,7 @@ class ReservationCreateTest extends TestCase
             'available_tickets' => 2,
         ]);
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => $this->event->id,
             'quantity' => 5,
             'version' => $this->event->version,
@@ -116,7 +116,7 @@ class ReservationCreateTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => $this->event->id,
             'quantity' => 0,
             'version' => $this->event->version,
@@ -129,7 +129,7 @@ class ReservationCreateTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => $this->event->id,
             'quantity' => -1,
             'version' => $this->event->version,
@@ -142,7 +142,7 @@ class ReservationCreateTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => 9999,
             'quantity' => 3,
             'version' => 1,
@@ -156,7 +156,7 @@ class ReservationCreateTest extends TestCase
 
     public function test_user_must_be_authenticated_to_create_reservation(): void
     {
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => $this->event->id,
             'quantity' => 3,
             'version' => $this->event->version,
@@ -173,7 +173,7 @@ class ReservationCreateTest extends TestCase
             'version' => 5,
         ]);
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/v1/reservations', [
             'event_id' => $this->event->id,
             'quantity' => 3,
             'version' => 1,

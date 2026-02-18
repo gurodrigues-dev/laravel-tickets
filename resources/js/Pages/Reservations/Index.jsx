@@ -28,7 +28,7 @@ export default function Index({ auth }) {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get('/api/reservations/my-reservations');
+            const response = await axios.get('/api/v1/reservations/my-reservations');
             setReservations(response.data);
         } catch (err) {
             setError(getErrorMessage(err));
@@ -87,7 +87,7 @@ export default function Index({ auth }) {
         }
 
         try {
-            await axios.put(`/api/reservations/${selectedReservation.id}`, {
+            await axios.put(`/api/v1/reservations/${selectedReservation.id}`, {
                 quantity: quantity,
                 version: selectedReservation.event.version,
             });
@@ -113,7 +113,7 @@ export default function Index({ auth }) {
         setCancelLoading(true);
 
         try {
-            await axios.delete(`/api/reservations/${selectedReservation.id}`);
+            await axios.delete(`/api/v1/reservations/${selectedReservation.id}`);
             setSuccessMessage('Reservation cancelled successfully.');
             setCancelModalOpen(false);
             fetchReservations();

@@ -24,7 +24,7 @@ export default function Index({ auth }) {
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/api/events');
+            const response = await axios.get('/api/v1/events');
             setEvents(response.data);
             setError(null);
         } catch (error) {

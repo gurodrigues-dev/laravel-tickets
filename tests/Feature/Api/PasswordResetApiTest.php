@@ -23,7 +23,7 @@ class PasswordResetApiTest extends TestCase
 
         Notification::fake();
 
-        $response = $this->postJson('/api/forgot-password', [
+        $response = $this->postJson('/api/v1/forgot-password', [
             'email' => 'test@example.com',
         ]);
 
@@ -40,7 +40,7 @@ class PasswordResetApiTest extends TestCase
     {
         Notification::fake();
 
-        $response = $this->postJson('/api/forgot-password', [
+        $response = $this->postJson('/api/v1/forgot-password', [
             'email' => 'nonexistent@example.com',
         ]);
 
@@ -62,7 +62,7 @@ class PasswordResetApiTest extends TestCase
 
         $token = Password::createToken($user);
 
-        $response = $this->postJson('/api/reset-password', [
+        $response = $this->postJson('/api/v1/reset-password', [
             'token' => $token,
             'email' => 'test@example.com',
             'password' => 'new-password',
@@ -89,7 +89,7 @@ class PasswordResetApiTest extends TestCase
             'password' => Hash::make('old-password'),
         ]);
 
-        $response = $this->postJson('/api/reset-password', [
+        $response = $this->postJson('/api/v1/reset-password', [
             'token' => 'invalid-token',
             'email' => 'test@example.com',
             'password' => 'new-password',
@@ -105,7 +105,7 @@ class PasswordResetApiTest extends TestCase
 
     public function test_password_reset_requires_validation(): void
     {
-        $response = $this->postJson('/api/reset-password', [
+        $response = $this->postJson('/api/v1/reset-password', [
             'token' => '',
             'email' => '',
             'password' => '',
@@ -125,7 +125,7 @@ class PasswordResetApiTest extends TestCase
 
         $token = Password::createToken($user);
 
-        $response = $this->postJson('/api/reset-password', [
+        $response = $this->postJson('/api/v1/reset-password', [
             'token' => $token,
             'email' => 'test@example.com',
             'password' => 'new-password',
@@ -138,7 +138,7 @@ class PasswordResetApiTest extends TestCase
 
     public function test_password_reset_link_request_requires_email(): void
     {
-        $response = $this->postJson('/api/forgot-password', [
+        $response = $this->postJson('/api/v1/forgot-password', [
             'email' => '',
         ]);
 
@@ -148,7 +148,7 @@ class PasswordResetApiTest extends TestCase
 
     public function test_password_reset_link_request_requires_valid_email_format(): void
     {
-        $response = $this->postJson('/api/forgot-password', [
+        $response = $this->postJson('/api/v1/forgot-password', [
             'email' => 'invalid-email',
         ]);
 

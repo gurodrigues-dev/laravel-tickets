@@ -41,7 +41,7 @@ export default function BookingModal({ isOpen, onClose, event, onSuccess }) {
         setError('');
 
         try {
-            const response = await axios.post('/api/reservations', {
+            const response = await axios.post('/api/v1/reservations', {
                 event_id: event.id,
                 quantity: quantity,
                 version: event.version || 0,
