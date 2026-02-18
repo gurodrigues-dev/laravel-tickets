@@ -4,7 +4,6 @@ namespace App\Http\Requests\Api;
 
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -33,38 +32,6 @@ class LoginRequest extends FormRequest
             'password.required' => 'The password field is required.',
             'password.min' => 'The password must be at least 8 characters.',
         ];
-    }
-
-    public function authenticate(): bool
-    {
-        $this->ensureIsNotRateLimited();
-
-        $credentials = $this->only('email', 'password');
-        $remember = $this->boolean('remember');
-
-        if (! Auth::attempt($credentials, $remember)) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => 'Invalid credentials. Please check your email and password.',
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey());
-
-        return true;
-    }
-
-    public function getCredentials(): array
-    {
-        $this->ensureIsNotRateLimited();
-
-        $credentials = [
-            'email' => $this->input('email'),
-            'password' => $this->input('password'),
-        ];
-
-        return $credentials;
     }
 
     /**

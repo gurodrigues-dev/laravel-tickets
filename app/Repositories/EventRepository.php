@@ -8,22 +8,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class EventRepository implements EventRepositoryInterface
 {
-    /**
-     * Get all events (deprecated - use paginate instead)
-     *
-     * @deprecated Use paginate() method for better performance
-     */
     public function all()
     {
         return Event::all();
     }
 
-    /**
-     * Paginate events
-     *
-     * @param  int  $perPage  Number of items per page
-     * @param  int  $page  Current page number
-     */
     public function paginate(int $perPage = 10, int $page = 1): LengthAwarePaginator
     {
         return Event::orderBy('event_date', 'asc')

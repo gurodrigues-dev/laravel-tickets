@@ -18,7 +18,6 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
         enabled = true
     } = options;
 
-    // State management
     const [data, setData] = useState([]);
     const [page, setPage] = useState(initialPage);
     const [loading, setLoading] = useState(false);
@@ -27,17 +26,14 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
     const [error, setError] = useState(null);
     const [total, setTotal] = useState(0);
 
-    // Refs
     const observerRef = useRef(null);
     const loadingRef = useRef(false);
     const fetchFunctionRef = useRef(fetchFunction);
 
-    // Update fetch function ref
     useEffect(() => {
         fetchFunctionRef.current = fetchFunction;
     }, [fetchFunction]);
 
-    // Reset pagination state
     const reset = useCallback(() => {
         setData([]);
         setPage(initialPage);
@@ -49,7 +45,6 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
         loadingRef.current = false;
     }, [initialPage]);
 
-    // Fetch data for a specific page
     const fetchPage = useCallback(async (pageNum) => {
         if (!enabled || loadingRef.current) {
             return;
@@ -61,12 +56,10 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
         try {
             const response = await fetchFunctionRef.current(pageNum, perPage);
 
-            // Handle different response formats
             let newData = [];
             let paginationMeta = null;
 
             if (response?.data && Array.isArray(response.data)) {
-                // Direct array response
                 newData = response.data;
                 paginationMeta = {
                     current_page: pageNum,
@@ -75,7 +68,6 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
                     total: response.meta?.total || response.total || response.data.length
                 };
             } else if (response?.data?.data && Array.isArray(response.data.data)) {
-                // Laravel-style paginated response
                 newData = response.data.data;
                 paginationMeta = {
                     current_page: response.data.meta?.current_page || pageNum,
@@ -84,7 +76,6 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
                     total: response.data.meta?.total || response.data.data.length
                 };
             } else if (Array.isArray(response)) {
-                // Direct array
                 newData = response;
                 paginationMeta = {
                     current_page: pageNum,
@@ -94,7 +85,6 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
                 };
             }
 
-            // Update state
             if (pageNum === initialPage) {
                 setData(newData);
             } else {
@@ -103,7 +93,6 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
 
             setTotal(paginationMeta.total);
 
-            // Determine if there are more pages
             const newHasMore = paginationMeta.current_page < paginationMeta.last_page && newData.length === perPage;
             setHasMore(newHasMore);
             setPage(paginationMeta.current_page);
@@ -119,23 +108,19 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
         }
     }, [enabled, perPage, initialPage]);
 
-    // Load more items
     const loadMore = useCallback(() => {
         if (!loading && hasMore && !loadingRef.current && enabled) {
             fetchPage(page + 1);
         }
     }, [loading, hasMore, page, fetchPage, enabled]);
 
-    // Initialize data fetch
     useEffect(() => {
         if (enabled) {
             reset();
             fetchPage(initialPage);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [enabled, initialPage]);
 
-    // Intersection Observer for infinite scroll
     useEffect(() => {
         if (!enabled || !hasMore) {
             return;
@@ -167,14 +152,12 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
         };
     }, [hasMore, loadMore, enabled]);
 
-    // Retry loading current page
     const retry = useCallback(() => {
         setError(null);
         fetchPage(page);
     }, [page, fetchPage]);
 
     return {
-        // State
         data,
         loading,
         initialLoading,
@@ -185,21 +168,16 @@ export function useInfiniteScroll(fetchFunction, options = {}) {
         perPage,
         loadMoreText,
 
-        // Methods
         loadMore,
         reset,
         retry,
         fetchPage,
 
-        // Refs
         observerRef,
         loadingRef
     };
 }
 
-/**
- * Component for displaying loading indicator at the bottom of list
- */
 export function InfiniteScrollLoader({ loading, hasMore, error, retry, text = 'Loading more...' }) {
     if (error) {
         return (

@@ -5,7 +5,6 @@ use App\Http\Requests\UpdateReservationRequest;
 use App\Services\Contracts\ReservationServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Mockery;
 use Tests\TestCase;
 
 uses(TestCase::class)

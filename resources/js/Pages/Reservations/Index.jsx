@@ -22,13 +22,11 @@ export default function Index({ auth }) {
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [cancelLoading, setCancelLoading] = useState(false);
 
-    // Fetch reservations with pagination
     const fetchReservations = async (page, perPage) => {
         const response = await axios.get(`/api/v1/reservations/my-reservations?page=${page}&per_page=${perPage}`);
         return response;
     };
 
-    // Infinite scroll hook
     const {
         data: reservations,
         loading: paginationLoading,
@@ -96,7 +94,7 @@ export default function Index({ auth }) {
 
             setSuccessMessage(`Reservation updated to ${quantity} ticket(s).`);
             setUpdateModalOpen(false);
-            retry(); // Refresh data after update
+            retry();
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
@@ -118,12 +116,10 @@ export default function Index({ auth }) {
             await axios.delete(`/api/v1/reservations/${selectedReservation.id}`);
             setSuccessMessage('Reservation cancelled successfully.');
             setCancelModalOpen(false);
-            retry(); // Refresh data after cancellation
+            retry();
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
-            // Error is handled by the useInfiniteScroll hook
-            // We can add local error handling here if needed
         } finally {
             setCancelLoading(false);
         }

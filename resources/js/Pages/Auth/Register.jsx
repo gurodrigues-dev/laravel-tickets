@@ -36,10 +36,7 @@ export default function Register() {
                 setErrors(errors);
             },
             onSuccess: (page) => {
-                // Force a page visit to ensure the authentication state is properly loaded
-                // This ensures that Inertia fetches the new page with the updated auth state
                 if (page.props.auth && page.props.auth.user) {
-                    // User is authenticated, allow the redirect to proceed
                     console.log('Registration successful, user authenticated:', page.props.auth.user);
                 } else {
                     console.warn('Registration successful but user not authenticated in page props');
@@ -53,7 +50,6 @@ export default function Register() {
             ...prev,
             [event.target.name]: event.target.value
         }));
-        // Clear field error when user types
         if (errors[event.target.name]) {
             setErrors(prev => {
                 const newErrors = { ...prev };

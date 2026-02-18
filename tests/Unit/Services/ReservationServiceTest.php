@@ -2,13 +2,10 @@
 
 use App\Models\Event;
 use App\Models\Reservation;
-use App\Models\User;
 use App\Repositories\Contracts\EventRepositoryInterface;
 use App\Repositories\Contracts\ReservationRepositoryInterface;
 use App\Services\ReservationService;
-use Exception;
 use Illuminate\Support\Facades\DB;
-use Mockery;
 use Tests\TestCase;
 
 uses(TestCase::class);

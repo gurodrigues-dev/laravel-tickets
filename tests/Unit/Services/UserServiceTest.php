@@ -4,7 +4,6 @@ use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Hash;
-use Mockery;
 use Tests\TestCase;
 
 uses(TestCase::class);

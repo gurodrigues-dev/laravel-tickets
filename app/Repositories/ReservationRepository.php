@@ -13,11 +13,6 @@ class ReservationRepository implements ReservationRepositoryInterface
         return Reservation::with('event')->find($id);
     }
 
-    /**
-     * Find reservations by user (deprecated - use findByUserPaginated instead)
-     *
-     * @deprecated Use findByUserPaginated() method for better performance
-     */
     public function findByUser(int $userId)
     {
         return Reservation::with('event')
@@ -25,13 +20,6 @@ class ReservationRepository implements ReservationRepositoryInterface
             ->get();
     }
 
-    /**
-     * Paginate user reservations
-     *
-     * @param  int  $userId  User ID
-     * @param  int  $perPage  Number of items per page
-     * @param  int  $page  Current page number
-     */
     public function findByUserPaginated(int $userId, int $perPage = 10, int $page = 1): LengthAwarePaginator
     {
         return Reservation::with('event')

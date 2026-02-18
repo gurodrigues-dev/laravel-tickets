@@ -19,13 +19,11 @@ export default function Index({ auth }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
-    // Fetch events with pagination
     const fetchEvents = async (page, perPage) => {
         const response = await axios.get(`/api/v1/events?page=${page}&per_page=${perPage}`);
         return response;
     };
 
-    // Infinite scroll hook
     const {
         data: events,
         loading: paginationLoading,
@@ -49,7 +47,6 @@ export default function Index({ auth }) {
     };
 
     const handleBookingSuccess = (reservation) => {
-        // Refresh data on booking success
         retry();
     };
 
@@ -101,7 +98,7 @@ export default function Index({ auth }) {
 
         if (endDate) {
             const end = new Date(endDate);
-            end.setHours(23, 59, 59, 999); // End of day
+            end.setHours(23, 59, 59, 999);
             filtered = filtered.filter(event => {
                 if (!event.event_date) return false;
                 return new Date(event.event_date) <= end;
