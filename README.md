@@ -409,10 +409,120 @@ Response includes `email_verified_at` field:
 - PHP 8.1 or higher
 - Composer 2.x
 - Node.js 18.x or higher
-- PostgreSQL 16 (or use Docker)
-- Redis 6.x (or use Docker)
+- Docker and Docker Compose (required for infrastructure)
 
-### Method 1: Without Docker/NGINX (Local Services)
+**⚠️ Important:** The project requires Docker for PostgreSQL and Redis infrastructure. The application does not support running PostgreSQL/Redis directly on the host machine without Docker.
+
+---
+
+## Local Development Setup Clarifications
+
+There are **TWO different approaches** for running the application locally. Choose the one that fits your workflow:
+
+---
+
+### Option 1: Docker Compose for Infrastructure + Local PHP Server
+
+**Purpose:** Run PostgreSQL and Redis via Docker, but run Laravel application locally with `php artisan serve`.
+
+**Benefits:**
+- Faster development cycle (no container rebuild needed for code changes)
+- Can use Xdebug for debugging locally
+- Full control over PHP environment
+- Easier to use with IDE tools
+
+**Setup Steps:**
+
+**Step 1: Clone and Install Dependencies**
+
+```bash
+git clone <repository-url>
+cd laravel-tickets
+composer install
+npm install
+```
+
+**Step 2: Start Infrastructure Services via Docker**
+
+```bash
+docker compose up -d postgres redis
+```
+
+This will start only:
+- **PostgreSQL 16** (port 5432)
+- **Redis 6.2.6** (port 6379)
+
+**Step 3: Configure Environment**
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+**Edit `.env` file with these CRITICAL settings:**
+
+```env
+# IMPORTANT: Use 127.0.0.1 because PHP runs locally (not in Docker)
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=mirus
+DB_USERNAME=postgres
+DB_PASSWORD=password
+
+# IMPORTANT: Use 127.0.0.1 because PHP runs locally (not in Docker)
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+
+# Session and cache drivers
+SESSION_DRIVER=redis
+CACHE_DRIVER=redis
+
+# Application URL
+APP_URL=http://localhost:8000
+```
+
+**Why `127.0.0.1`?** Since your PHP application runs on the host machine (not in Docker), it needs to connect to Docker containers via `localhost` (127.0.0.1) using the exposed ports.
+
+**Step 4: Run Migrations and Seed Data**
+
+```bash
+php artisan migrate --seed
+```
+
+**Step 5: Build Frontend Assets**
+
+```bash
+npm run dev
+```
+
+**Step 6: Start Local PHP Development Server**
+
+```bash
+php artisan serve
+```
+
+The application will be available at: `http://localhost:8000`
+
+**Step 7: Access Additional Services**
+
+- **Swagger Documentation:** `http://localhost:8000/api/documentation`
+- **Metabase:** `docker compose up -d metabase` (if needed)
+
+---
+
+### Option 2: Docker Compose for Everything (Infrastructure + App)
+
+**Purpose:** Run the entire stack (PostgreSQL, Redis, and Laravel application) via Docker Compose.
+
+**Benefits:**
+- Complete isolation from host system
+- Consistent environment across team members
+- No local PHP/PostgreSQL/Redis dependencies needed
+- Reproducible builds
+
+**⚠️ WARNING:** NOT for production use - every rebuild runs `php artisan migrate:fresh --seed`, which resets all data.
+
+**Setup Steps:**
 
 **Step 1: Clone and Install Dependencies**
 
@@ -430,18 +540,18 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-**Edit `.env` file:**
+**Keep `.env` file with these CRITICAL settings:**
 
 ```env
-# Change database host to localhost
-DB_HOST=127.0.0.1
+# IMPORTANT: Use service names because PHP runs in Docker network
+DB_HOST=postgres
 DB_PORT=5432
 DB_DATABASE=mirus
 DB_USERNAME=postgres
-DB_PASSWORD=your_password
+DB_PASSWORD=password
 
-# Change Redis host to localhost
-REDIS_HOST=127.0.0.1
+# IMPORTANT: Use service names because PHP runs in Docker network
+REDIS_HOST=redis
 REDIS_PORT=6379
 
 # Session and cache drivers
@@ -452,51 +562,9 @@ CACHE_DRIVER=redis
 APP_URL=http://localhost:8000
 ```
 
-**Step 3: Create Database**
+**Why `postgres` and `redis`?** Since the PHP application runs inside Docker, it can resolve the container names `postgres` and `redis` directly within the Docker network. No need for `127.0.0.1`.
 
-```bash
-# Create PostgreSQL database
-createdb mirus
-
-# Or via psql
-psql -U postgres
-CREATE DATABASE mirus;
-\q
-```
-
-**Step 4: Run Migrations and Seed Data**
-
-```bash
-php artisan migrate --seed
-```
-
-**Step 5: Build Frontend Assets**
-
-```bash
-npm run dev
-```
-
-**Step 6: Start Development Server**
-
-```bash
-php artisan serve
-```
-
-The application will be available at: `http://localhost:8000`
-
-**Step 7: Access Additional Services**
-
-- **Swagger Documentation:** `http://localhost:8000/api/documentation`
-- **Metabase:** Run separately or use Docker (see below)
-
----
-
-### Method 2: With Docker Compose
-
-⚠️ **IMPORTANT WARNING:**
-Docker Compose configuration is **NOT for production use**. Every time it's built, it restarts the database using `php artisan migrate:fresh --seed`, which will **DELETE ALL DATA**.
-
-**Step 1: Build and Start Containers**
+**Step 3: Build and Start All Containers**
 
 ```bash
 docker compose up --build -d
@@ -508,7 +576,7 @@ This will start:
 - **Laravel App** (via NGINX on port 8000)
 - **Metabase** (port 3000)
 
-**Step 2: Access the Application**
+**Step 4: Access Application**
 
 ```
 Application:  http://localhost:8000
@@ -516,7 +584,7 @@ API Docs:     http://localhost:8000/api/documentation
 Metabase:     http://localhost:3000
 ```
 
-**Step 3: View Logs**
+**Step 5: View Logs**
 
 ```bash
 # View all logs
@@ -525,21 +593,37 @@ docker compose logs -f
 # View specific service logs
 docker compose logs -f app
 docker compose logs -f postgres
+docker compose logs -f nginx
 ```
 
-**Step 4: Stop Services**
+**Step 6: Stop Services**
 
 ```bash
 docker compose down
 ```
 
-**Step 5: Stop and Remove All Data**
+**Step 7: Stop and Remove All Data**
 
 ```bash
 docker compose down -v  # -v removes volumes (deletes all data)
 ```
 
-### Docker Compose Services
+---
+
+## Key Differences Between Options
+
+| Aspect | Option 1 (Local PHP) | Option 2 (All Docker) |
+|--------|----------------------|----------------------|
+| **PHP Execution** | Local machine | Docker container |
+| **DB_HOST in .env** | `127.0.0.1` | `postgres` |
+| **REDIS_HOST in .env** | `127.0.0.1` | `redis` |
+| **Code Changes** | Immediate effect | Requires container rebuild or volume mount |
+| **Debugging** | Native Xdebug support | Requires remote Xdebug setup |
+| **Performance** | Faster iteration | Slightly slower |
+| **Isolation** | Lower | Complete |
+| **Recommended For** | Development | Testing/CI |
+
+### Docker Compose Services Reference
 
 | Service | Port | Description |
 |---------|------|-------------|
@@ -548,6 +632,10 @@ docker compose down -v  # -v removes volumes (deletes all data)
 | `app` | - | Laravel PHP-FPM application |
 | `nginx` | 8000 | Web server |
 | `metabase` | 3000 | Database visualization tool |
+
+⚠️ IMPORTANT:
+The value of DB_HOST and REDIS_HOST depends on where PHP is running.
+Read each option carefully before configuring your .env file.
 
 ---
 
