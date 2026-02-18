@@ -222,11 +222,7 @@ export function InfiniteScrollLoader({ loading, hasMore, error, retry, text = 'L
     }
 
     if (!hasMore && !loading) {
-        return (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm" role="status" aria-live="polite">
-                You've reached the end of the list
-            </div>
-        );
+        return null;
     }
 
     if (loading) {

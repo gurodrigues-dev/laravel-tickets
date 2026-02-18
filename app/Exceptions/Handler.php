@@ -2,9 +2,11 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use JsonException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -51,6 +53,18 @@ class Handler extends ExceptionHandler
 
     protected function getStatusCode(Throwable $e): int
     {
+        if ($e instanceof AuthenticationException) {
+            return 401;
+        }
+
+        if ($e instanceof ValidationException) {
+            return $e->status ?? 422;
+        }
+
+        if ($e instanceof JsonException) {
+            return 400;
+        }
+
         if (method_exists($e, 'getStatusCode')) {
             return $e->getStatusCode() ?? 500;
         }

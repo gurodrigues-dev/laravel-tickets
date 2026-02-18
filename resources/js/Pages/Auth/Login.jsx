@@ -31,7 +31,13 @@ export default function Login({ status, canResetPassword }) {
             onError: (errors) => {
                 setErrors(errors);
             },
-            onSuccess: () => {
+            onSuccess: (page) => {
+                // Ensure the authentication state is properly loaded
+                if (page.props.auth && page.props.auth.user) {
+                    console.log('Login successful, user authenticated:', page.props.auth.user);
+                } else {
+                    console.warn('Login successful but user not authenticated in page props');
+                }
             }
         });
     };

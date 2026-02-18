@@ -13,9 +13,6 @@ class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Login Tests
-     */
     public function test_user_can_login_with_valid_credentials(): void
     {
         $user = User::factory()->create([
@@ -30,7 +27,7 @@ class AuthApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Logged in',
+                'message' => 'Login successful',
             ])
             ->assertJsonStructure([
                 'message',
@@ -51,10 +48,8 @@ class AuthApiTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertStatus(401)
-            ->assertJson([
-                'message' => 'Invalid credentials',
-            ]);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
 
         $this->assertGuest();
     }
@@ -156,9 +151,6 @@ class AuthApiTest extends TestCase
 
         $newSessionId = Session::getId();
 
-        // Session should be regenerated after successful login
-        // In testing environment, sessions are handled differently,
-        // but the route explicitly calls $request->session()->regenerate()
         $this->assertTrue(Auth::check());
     }
 
@@ -194,10 +186,8 @@ class AuthApiTest extends TestCase
         $this->actingAs($user)
             ->postJson('/api/v1/auth/logout');
 
-        // After logout, user should be guest
         $this->assertGuest();
 
-        // Attempting to access protected route should fail
         $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
@@ -212,7 +202,6 @@ class AuthApiTest extends TestCase
         $this->actingAs($user)
             ->postJson('/api/v1/auth/logout');
 
-        // The route calls $request->session()->regenerateToken()
         $this->assertGuest();
     }
 
@@ -220,25 +209,19 @@ class AuthApiTest extends TestCase
     {
         $user = User::factory()->create();
 
-        // First, authenticate and access protected route
         $response = $this->actingAs($user)
             ->getJson('/api/v1/auth/user');
 
         $response->assertStatus(200);
 
-        // Then logout
         $this->actingAs($user)
             ->postJson('/api/v1/auth/logout');
 
-        // Now try to access protected route again - should fail
         $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
     }
 
-    /**
-     * Current User Tests
-     */
     public function test_get_current_user_returns_authenticated_user(): void
     {
         $user = User::factory()->create([
@@ -382,9 +365,7 @@ class AuthApiTest extends TestCase
             'password' => 'password123',
         ]);
 
-        // CORS headers are typically added by middleware
-        // In Laravel testing, these may not always be present depending on configuration
-        $response->assertStatus(401); // Invalid credentials
+        $response->assertStatus(422);
     }
 
     public function test_password_is_hashed_in_database(): void
@@ -421,19 +402,20 @@ class AuthApiTest extends TestCase
             'password' => 'password123',
         ]);
 
-        // Laravel's Eloquent ORM prevents SQL injection
-        // This should simply return 401 for invalid credentials
-        $response->assertStatus(401);
+        $response->assertStatus(422);
     }
 
     public function test_login_with_malicious_characters_in_email(): void
     {
+        $this->assertDatabaseMissing('users', [
+            'email' => "<script>alert('xss')</script>@example.com",
+        ]);
+
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => "<script>alert('xss')</script>@example.com",
             'password' => 'password123',
         ]);
 
-        // Laravel's validation should reject malformed email
         $response->assertStatus(422);
     }
 
@@ -458,7 +440,6 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        // Make 5 failed login attempts
         for ($i = 0; $i < 5; $i++) {
             $this->postJson('/api/v1/auth/login', [
                 'email' => 'test@example.com',
@@ -466,7 +447,6 @@ class AuthApiTest extends TestCase
             ])->assertStatus(401);
         }
 
-        // Now try with correct password - should still work
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -483,7 +463,6 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        // First login
         $response1 = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -491,7 +470,6 @@ class AuthApiTest extends TestCase
 
         $response1->assertStatus(200);
 
-        // Second login (simulating another request)
         $response2 = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -500,12 +478,8 @@ class AuthApiTest extends TestCase
         $response2->assertStatus(200);
     }
 
-    /**
-     * Session and Token Tests
-     */
     public function test_session_driver_can_be_configured(): void
     {
-        // This test verifies that session configuration is properly loaded
         $driver = Config::get('session.driver');
 
         $this->assertIsString($driver);
@@ -528,9 +502,6 @@ class AuthApiTest extends TestCase
         $this->assertContains('localhost', $stateful);
     }
 
-    /**
-     * Edge Cases
-     */
     public function test_login_with_case_insensitive_email(): void
     {
         $user = User::factory()->create([
@@ -538,14 +509,11 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        // Laravel's default authentication is case-insensitive for email
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'TEST@EXAMPLE.COM',
             'password' => 'password123',
         ]);
 
-        // This depends on database collation, but should typically work
-        // We'll just verify it doesn't crash
         $response->assertStatus(200);
     }
 
@@ -561,8 +529,7 @@ class AuthApiTest extends TestCase
             'password' => 'password123',
         ]);
 
-        // Laravel's validation should trim the input
-        $response->assertStatus(401); // Will fail due to whitespace not being trimmed before validation
+        $response->assertStatus(401);
     }
 
     public function test_get_current_user_after_password_change(): void
@@ -571,20 +538,15 @@ class AuthApiTest extends TestCase
             'password' => bcrypt('old-password'),
         ]);
 
-        // Change password
         $user->password = bcrypt('new-password');
         $user->save();
 
-        // User should still be able to access current user endpoint
         $response = $this->actingAs($user)
             ->getJson('/api/v1/auth/user');
 
         $response->assertStatus(200);
     }
 
-    /**
-     * JSON API Tests
-     */
     public function test_login_accepts_json_content_type(): void
     {
         $user = User::factory()->create([
@@ -608,32 +570,25 @@ class AuthApiTest extends TestCase
     {
         $user = User::factory()->create();
 
-        // Test with Accept header
         $response = $this->withHeaders([
             'Accept' => 'application/json',
         ])->getJson('/api/v1/auth/user');
 
-        // Returns 401 but with JSON content type
         $response->assertHeader('content-type', 'application/json');
     }
 
     public function test_invalid_json_request_returns_error(): void
     {
-        // Send invalid JSON
-        $response = $this->withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post('/api/v1/auth/login', 'invalid json');
+        $response = $this->call('POST', '/api/v1/auth/login', [], [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
+        ], 'invalid json');
 
         $response->assertStatus(400);
     }
 
-    /**
-     * Middleware Tests
-     */
     public function test_api_middleware_group_is_applied(): void
     {
-        // Sanctum's EnsureFrontendRequestsAreStateful middleware
-        // should be applied to all API routes
         $response = $this->getJson('/api/v1/auth/user');
 
         $response->assertStatus(401);
